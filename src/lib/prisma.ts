@@ -4,9 +4,11 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const dbUrl =
-  process.env.DATABASE_URL ||
-  "postgresql://neondb_owner:npg_XGPvM1i2alzg@50.16.189.237:5432/neondb?sslmode=require&options=endpoint%3Dep-rapid-pond-avlt9dfu-pooler";
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error("DATABASE_URL environment variable is missing. Please set it in your .env file.");
+}
 
 export const prisma =
   globalForPrisma.prisma ??

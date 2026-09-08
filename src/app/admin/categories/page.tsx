@@ -171,7 +171,6 @@ export default function AdminCategoriesPage() {
   const handleDragEnd = async () => {
     setDraggedIndex(null);
 
-    // Save updated sortOrder
     const reorderedItems = flattenedCategories.map((item, idx) => ({
       id: item.id,
       sortOrder: idx + 1,
@@ -188,24 +187,20 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // Build Hierarchical Flattened Structure for Table Render
   const [flattenedCategories, setFlattenedCategories] = useState<(Category & { level: number })[]>([]);
 
   useEffect(() => {
     const tree: (Category & { level: number })[] = [];
     
-    // Top-level categories (parentId === null)
     const parents = categories.filter((c) => !c.parentId);
     parents.forEach((parent) => {
       tree.push({ ...parent, level: 0 });
-      // Children of parent
       const children = categories.filter((c) => c.parentId === parent.id);
       children.forEach((child) => {
         tree.push({ ...child, level: 1 });
       });
     });
 
-    // Add orphaned items if any
     const inTreeIds = new Set(tree.map((t) => t.id));
     categories.forEach((c) => {
       if (!inTreeIds.has(c.id)) {
@@ -217,15 +212,15 @@ export default function AdminCategoriesPage() {
   }, [categories]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-brand-card p-5 rounded-xl border border-slate-200 shadow-sm">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <FolderTree className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-xl font-bold text-brand-navy flex items-center gap-2">
+            <FolderTree className="w-5 h-5 text-brand-green" />
             Categories Management
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Create, edit, delete, reorder via drag & drop, and manage nested subcategories.
           </p>
         </div>
@@ -233,14 +228,14 @@ export default function AdminCategoriesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={fetchCategories}
-            className="p-2 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium transition-colors"
+            className="p-2 text-slate-600 hover:text-brand-navy bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-xs font-medium transition-colors"
             title="Refresh List"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <button
             onClick={() => openCreateModal()}
-            className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg shadow-sm transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-semibold text-xs rounded-lg shadow-sm transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Category
@@ -265,7 +260,7 @@ export default function AdminCategoriesPage() {
           </div>
         ) : (
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold uppercase tracking-wider">
+            <thead className="bg-brand-card text-brand-navy border-b border-slate-200 font-bold uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4 w-10">Reorder</th>
                 <th className="py-3 px-4">Category Name</th>
@@ -284,19 +279,19 @@ export default function AdminCategoriesPage() {
                   onDragStart={() => handleDragStart(index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`hover:bg-slate-50 transition-colors ${
-                    draggedIndex === index ? "bg-indigo-50/50 opacity-60" : ""
+                  className={`hover:bg-brand-card transition-colors ${
+                    draggedIndex === index ? "bg-brand-green-light/50 opacity-60" : ""
                   }`}
                 >
-                  <td className="py-3 px-4 cursor-grab text-slate-400 hover:text-slate-600">
+                  <td className="py-3 px-4 cursor-grab text-slate-400 hover:text-brand-navy">
                     <GripVertical className="w-4 h-4" />
                   </td>
 
-                  <td className="py-3 px-4 font-medium text-slate-900">
+                  <td className="py-3 px-4 font-bold text-brand-navy">
                     <div className="flex items-center gap-2" style={{ paddingLeft: `${cat.level * 24}px` }}>
                       {cat.level > 0 && <CornerDownRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
                       {cat.iconUrl && (
-                        <span className="w-5 h-5 rounded bg-slate-100 flex items-center justify-center text-xs">
+                        <span className="w-5 h-5 rounded bg-brand-green-light flex items-center justify-center text-xs">
                           {cat.iconUrl}
                         </span>
                       )}
@@ -310,24 +305,24 @@ export default function AdminCategoriesPage() {
 
                   <td className="py-3 px-4 text-slate-600">
                     {cat.parentId ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-blue-light text-brand-blue font-medium text-[11px]">
                         Subcategory of: <strong>{cat.parent?.name || `ID ${cat.parentId}`}</strong>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium text-[11px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-semibold text-[11px]">
                         Top-Level Category
                       </span>
                     )}
                   </td>
 
-                  <td className="py-3 px-4 font-mono font-medium text-slate-700">
+                  <td className="py-3 px-4 font-mono font-medium text-brand-navy">
                     {cat.sortOrder}
                   </td>
 
                   <td className="py-3 px-4">
                     {cat.status === "active" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-medium">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Active
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-green-light text-brand-green border border-brand-green/20 text-[11px] font-semibold">
+                        <CheckCircle2 className="w-3 h-3 text-brand-green" /> Active
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-medium">
@@ -341,7 +336,7 @@ export default function AdminCategoriesPage() {
                       {!cat.parentId && (
                         <button
                           onClick={() => openCreateModal(cat.id)}
-                          className="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded text-[11px] font-medium transition-colors"
+                          className="px-2 py-1 bg-brand-blue-light hover:bg-brand-blue hover:text-white text-brand-blue rounded text-[11px] font-semibold transition-colors"
                           title="Add Subcategory"
                         >
                           + Sub
@@ -349,7 +344,7 @@ export default function AdminCategoriesPage() {
                       )}
                       <button
                         onClick={() => openEditModal(cat)}
-                        className="p-1.5 text-slate-600 hover:text-indigo-600 hover:bg-slate-100 rounded transition-colors"
+                        className="p-1.5 text-slate-600 hover:text-brand-blue hover:bg-brand-blue-light rounded transition-colors"
                         title="Edit Category"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -374,13 +369,13 @@ export default function AdminCategoriesPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-slate-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <h3 className="text-base font-bold text-slate-900">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-brand-card">
+              <h3 className="text-base font-bold text-brand-navy">
                 {editingCategory ? "Edit Category" : "Create New Category"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold text-lg"
+                className="text-slate-400 hover:text-brand-navy font-bold text-lg"
               >
                 ✕
               </button>
@@ -388,7 +383,7 @@ export default function AdminCategoriesPage() {
 
             <form onSubmit={handleFormSubmit} className="p-6 space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-brand-navy mb-1">
                   Category Name <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -397,12 +392,12 @@ export default function AdminCategoriesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Restaurants, Auto Services..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-brand-navy mb-1">
                   Slug (URL Segment)
                 </label>
                 <input
@@ -410,21 +405,21 @@ export default function AdminCategoriesPage() {
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                   placeholder="auto-generated-if-empty"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs font-mono"
                 />
-                <span className="text-[11px] text-slate-400 mt-0.5 block">
+                <span className="text-[11px] text-slate-500 mt-0.5 block">
                   Unique identifier used in URL routes (e.g. /category/auto-services).
                 </span>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-brand-navy mb-1">
                   Parent Category (Nesting)
                 </label>
                 <select
                   value={formData.parentId}
                   onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
                 >
                   <option value="">-- Top Level Category (No Parent) --</option>
                   {categories
@@ -439,25 +434,25 @@ export default function AdminCategoriesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-bold text-brand-navy mb-1">
                     Sort Order
                   </label>
                   <input
                     type="number"
                     value={formData.sortOrder}
                     onChange={(e) => setFormData({ ...formData, sortOrder: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
+                  <label className="block font-bold text-brand-navy mb-1">
                     Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -466,7 +461,7 @@ export default function AdminCategoriesPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-brand-navy mb-1">
                   Icon URL / Emoji
                 </label>
                 <input
@@ -474,12 +469,12 @@ export default function AdminCategoriesPage() {
                   value={formData.iconUrl}
                   onChange={(e) => setFormData({ ...formData, iconUrl: e.target.value })}
                   placeholder="e.g. 🍽️ or https://example.com/icon.svg"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
+                <label className="block font-bold text-brand-navy mb-1">
                   Description
                 </label>
                 <textarea
@@ -487,7 +482,7 @@ export default function AdminCategoriesPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Short summary of this category..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
                 />
               </div>
 
@@ -502,7 +497,7 @@ export default function AdminCategoriesPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors"
+                  className="px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-semibold rounded-lg shadow-sm transition-colors"
                 >
                   {saving ? "Saving..." : editingCategory ? "Update Category" : "Create Category"}
                 </button>
@@ -516,7 +511,7 @@ export default function AdminCategoriesPage() {
       {deletingId && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-xl shadow-xl border border-slate-200 p-6 text-center">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Delete Category?</h3>
+            <h3 className="text-lg font-bold text-brand-navy mb-2">Delete Category?</h3>
             <p className="text-xs text-slate-600 mb-6">
               Are you sure you want to delete this category? Subcategories will automatically become top-level categories.
             </p>
@@ -530,7 +525,7 @@ export default function AdminCategoriesPage() {
               <button
                 onClick={() => handleDelete(deletingId)}
                 disabled={saving}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs rounded-lg shadow-sm"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-lg shadow-sm"
               >
                 {saving ? "Deleting..." : "Confirm Delete"}
               </button>

@@ -9,8 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        brand: {
+          green: "#1A8A2E",
+          "green-hover": "#147024",
+          "green-light": "#EBF7ED",
+          navy: "#000B4D",
+          blue: "#0463A5",
+          "blue-hover": "#034E82",
+          "blue-light": "#EBF4FA",
+          card: "#F8F9FA",
+        },
       },
     },
   },

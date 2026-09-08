@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 function generateSlug(text: string): string {
   return text
     .toLowerCase()

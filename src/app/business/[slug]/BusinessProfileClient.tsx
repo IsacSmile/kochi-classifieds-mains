@@ -543,27 +543,87 @@ export default function BusinessProfileClient({
                 )}
               </div>
 
-              {/* Embedded Google Maps iframe */}
-              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 h-64 relative shadow-inner">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  allowFullScreen
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(mapEmbedQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                />
-              </div>
+              {/* Embedded Google Maps iframe (if lat/long or address is available) */}
+              {(business.latitude !== null && business.longitude !== null || business.address) ? (
+                <>
+                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 h-64 relative shadow-inner">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      allowFullScreen
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(mapEmbedQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    />
+                  </div>
 
-              <a
-                href={directionsUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue text-slate-700 font-semibold rounded-xl text-xs transition-colors"
-              >
-                <Navigation className="w-3.5 h-3.5" />
-                Open Map in Google Maps
-              </a>
+                  <a
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue text-slate-700 font-semibold rounded-xl text-xs transition-colors"
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                    Open Map in Google Maps
+                  </a>
+                </>
+              ) : (
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-500 text-xs text-center">
+                  Map coordinates not specified. Address: {business.address || "Kochi, Kerala"}
+                </div>
+              )}
+            </section>
+
+            {/* Social & Direct Contact Links Section */}
+            <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-brand-navy flex items-center gap-2 border-b border-slate-100 pb-3">
+                <Globe className="w-5 h-5 text-brand-blue" />
+                Social & Direct Connect
+              </h2>
+
+              <div className="flex flex-wrap gap-2 text-xs">
+                {business.website && (
+                  <a
+                    href={business.website.startsWith("http") ? business.website : `https://${business.website}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue font-semibold text-slate-700 rounded-lg transition-colors"
+                  >
+                    <Globe className="w-4 h-4 text-brand-blue" />
+                    Official Website
+                  </a>
+                )}
+
+                {whatsappUrl && (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 fill-emerald-600 text-emerald-600" />
+                    WhatsApp Chat
+                  </a>
+                )}
+
+                {business.email && (
+                  <a
+                    href={`mailto:${business.email}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition-colors"
+                  >
+                    <Mail className="w-4 h-4 text-slate-500" />
+                    Email Contact
+                  </a>
+                )}
+
+                <button
+                  onClick={handleShare}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold rounded-lg transition-colors"
+                >
+                  <Share2 className="w-4 h-4 text-emerald-400" />
+                  {copied ? "Link Copied!" : "Share Profile"}
+                </button>
+              </div>
             </section>
           </div>
         </div>

@@ -56,17 +56,17 @@ async function main() {
     where: { email: adminEmail },
   });
 
+  const passwordHash = await bcrypt.hash(rawPassword, 10);
+
   if (existingAdmin) {
-    // Ensure role is admin
+    // Ensure role is admin and password matches .env
     await prisma.user.update({
       where: { email: adminEmail },
-      data: { role: "admin", status: "active" },
+      data: { role: "admin", status: "active", passwordHash },
     });
-    console.log("✓ Existing admin user updated to role=admin:", adminEmail);
+    console.log("✓ Existing admin user updated with role=admin and password from .env:", adminEmail);
     return;
   }
-
-  const passwordHash = await bcrypt.hash(rawPassword, 10);
 
   const adminUser = await prisma.user.create({
     data: {

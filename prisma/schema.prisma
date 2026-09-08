@@ -1,0 +1,161 @@
+// Prisma Schema for Local Business Directory Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  user
+  business_owner
+  admin
+}
+
+enum BusinessStatus {
+  pending
+  approved
+  rejected
+}
+
+// 1. Users table
+model User {
+  id           Int        @id @default(autoincrement())
+  name         String
+  email        String     @unique
+  phone        String?
+  passwordHash String     @map("password_hash")
+  role         UserRole   @default(user)
+  status       String     @default("active")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  businesses   Business[]
+
+  @@map("users")
+}
+
+// 2. Categories table (Self-referencing tree structure)
+model Category {
+  id          Int     @id @default(autoincrement())
+  parentId    Int?    @map("parent_id")
+  name        String
+  slug        String  @unique
+  iconUrl     String? @map("icon_url")
+  description String?
+  status      String  @default("active")
+  sortOrder   Int     @default(0) @map("sort_order")
+
+  // Relations
+  parent     Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children   Category[] @relation("CategoryHierarchy")
+  businesses Business[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+// 3. Locations table (Self-referencing tree structure)
+model Location {
+  id        Int    @id @default(autoincrement())
+  parentId  Int?   @map("parent_id")
+  name      String
+  slug      String @unique
+  latitude  Float?
+  longitude Float?
+  status    String @default("active")
+
+  // Relations
+  parent     Location?  @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children   Location[] @relation("LocationHierarchy")
+  businesses Business[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("locations")
+}
+
+// 4. Businesses table
+model Business {
+  id          Int            @id @default(autoincrement())
+  ownerId     Int            @map("owner_id")
+  name        String
+  slug        String         @unique
+  categoryId  Int            @map("category_id")
+  locationId  Int            @map("location_id")
+  description String?        @db.Text
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  phone       String?
+  whatsapp    String?
+  email       String?
+  website     String?
+  status      BusinessStatus @default(pending)
+  verified    Boolean        @default(false)
+  featured    Boolean        @default(false)
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  location         Location          @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  businessServices BusinessService[]
+  businessPhotos   BusinessPhoto[]
+  businessHours    BusinessHour[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([locationId])
+  @@index([ownerId])
+  @@map("businesses")
+}
+
+// 5. Business Services table
+model BusinessService {
+  id          Int      @id @default(autoincrement())
+  businessId  Int      @map("business_id")
+  serviceName String   @map("service_name")
+  description String?
+  price       Decimal? @db.Decimal(10, 2)
+
+  // Relations
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("business_services")
+}
+
+// 6. Business Photos table
+model BusinessPhoto {
+  id         Int     @id @default(autoincrement())
+  businessId Int     @map("business_id")
+  imageUrl   String  @map("image_url")
+  altText    String? @map("alt_text")
+  sortOrder  Int     @default(0) @map("sort_order")
+
+  // Relations
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("business_photos")
+}
+
+// 7. Business Hours table
+model BusinessHour {
+  id          Int     @id @default(autoincrement())
+  businessId  Int     @map("business_id")
+  day         String
+  openingTime String? @map("opening_time")
+  closingTime String? @map("closing_time")
+  closed      Boolean @default(false)
+
+  // Relations
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("business_hours")
+}

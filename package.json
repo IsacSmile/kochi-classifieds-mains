@@ -1,0 +1,16 @@
+{
+  "name": "kochi-classifieds-mains",
+  "version": "1.0.0",
+  "description": "Local business directory platform",
+  "main": "index.js",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2"
+  }
+}

@@ -2,6 +2,9 @@
 CREATE TYPE "UserRole" AS ENUM ('user', 'business_owner', 'admin');
 
 -- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('active', 'suspended');
+
+-- CreateEnum
 CREATE TYPE "BusinessStatus" AS ENUM ('pending', 'approved', 'rejected');
 
 -- CreateTable
@@ -12,7 +15,7 @@ CREATE TABLE "users" (
     "phone" TEXT,
     "password_hash" TEXT NOT NULL,
     "role" "UserRole" NOT NULL DEFAULT 'user',
-    "status" TEXT NOT NULL DEFAULT 'active',
+    "status" "UserStatus" NOT NULL DEFAULT 'active',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
@@ -140,6 +143,9 @@ CREATE INDEX "businesses_location_id_idx" ON "businesses"("location_id");
 CREATE INDEX "businesses_owner_id_idx" ON "businesses"("owner_id");
 
 -- CreateIndex
+CREATE INDEX "businesses_status_idx" ON "businesses"("status");
+
+-- CreateIndex
 CREATE INDEX "business_services_business_id_idx" ON "business_services"("business_id");
 
 -- CreateIndex
@@ -155,7 +161,7 @@ ALTER TABLE "categories" ADD CONSTRAINT "categories_parent_id_fkey" FOREIGN KEY 
 ALTER TABLE "locations" ADD CONSTRAINT "locations_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "locations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "businesses" ADD CONSTRAINT "businesses_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "businesses" ADD CONSTRAINT "businesses_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "businesses" ADD CONSTRAINT "businesses_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

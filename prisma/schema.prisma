@@ -16,6 +16,11 @@ enum UserRole {
   admin
 }
 
+enum UserStatus {
+  active
+  suspended
+}
+
 enum BusinessStatus {
   pending
   approved
@@ -30,7 +35,7 @@ model User {
   phone        String?
   passwordHash String     @map("password_hash")
   role         UserRole   @default(user)
-  status       String     @default("active")
+  status       UserStatus @default(active)
   createdAt    DateTime   @default(now()) @map("created_at")
   businesses   Business[]
 
@@ -100,7 +105,7 @@ model Business {
   createdAt   DateTime       @default(now()) @map("created_at")
 
   // Relations
-  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Restrict)
   category         Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   location         Location          @relation(fields: [locationId], references: [id], onDelete: Restrict)
   businessServices BusinessService[]
@@ -111,6 +116,7 @@ model Business {
   @@index([categoryId])
   @@index([locationId])
   @@index([ownerId])
+  @@index([status])
   @@map("businesses")
 }
 

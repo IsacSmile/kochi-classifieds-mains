@@ -28,6 +28,13 @@ export default function DashboardPage() {
         </Link>
 
         <div className="flex items-center gap-4 text-xs">
+          <Link href="/" className="text-slate-600 hover:text-brand-navy font-semibold transition-colors">
+            Home
+          </Link>
+          <Link href="/my-businesses" className="text-brand-green font-bold transition-colors">
+            My Businesses
+          </Link>
+
           <div className="flex items-center gap-2">
             <span className="font-bold text-brand-navy">{user?.name}</span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-bold text-[10px] uppercase border border-brand-green/20">
@@ -77,11 +84,22 @@ export default function DashboardPage() {
             </div>
             <h3 className="font-bold text-brand-navy text-base">My Business Listings</h3>
             <p className="text-slate-600 text-xs leading-relaxed">
-              Create, edit, and manage your local business listings, upload photos, set opening hours, and respond to local customer inquiries in Kochi.
+              Create, view, and manage your local business listings, track approval status, and inspect submission feedback in Kochi.
             </p>
-            <button className="px-3.5 py-2 bg-brand-blue-light hover:bg-brand-blue hover:text-white text-brand-blue font-semibold rounded-lg text-xs transition-colors">
-              + Register New Business
-            </button>
+            <div className="flex items-center gap-2 pt-1">
+              <Link
+                href="/my-businesses"
+                className="px-3.5 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-lg text-xs transition-colors shadow-xs"
+              >
+                View My Businesses
+              </Link>
+              <Link
+                href="/add-business"
+                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition-colors"
+              >
+                + Add Business
+              </Link>
+            </div>
           </div>
 
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">

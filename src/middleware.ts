@@ -27,8 +27,8 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Protect /dashboard/* -> Only role === "business_owner" or role === "admin"
-  if (pathname.startsWith("/dashboard")) {
+  // Protect /dashboard/* and /my-businesses -> Only role === "business_owner" or role === "admin"
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/my-businesses")) {
     if (!token) {
       const url = new URL("/login", req.url);
       url.searchParams.set("callbackUrl", pathname);
@@ -55,5 +55,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/add-business"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/my-businesses", "/add-business"],
 };

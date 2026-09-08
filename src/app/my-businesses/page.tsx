@@ -1,0 +1,578 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
+import {
+  Building2,
+  FolderTree,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Eye,
+  PlusCircle,
+  LogOut,
+  ExternalLink,
+  Phone,
+  MessageSquare,
+  Globe,
+  Mail,
+  X,
+  FileText,
+  Sparkles,
+  ImageIcon,
+  ShieldCheck,
+} from "lucide-react";
+
+export interface BusinessPhoto {
+  id: number;
+  imageUrl: string;
+  altText: string | null;
+  sortOrder: number;
+}
+
+export interface BusinessService {
+  id: number;
+  serviceName: string;
+  description: string | null;
+  price: any;
+}
+
+export interface BusinessHour {
+  id: number;
+  day: string;
+  openingTime: string | null;
+  closingTime: string | null;
+  closed: boolean;
+}
+
+export interface UserBusiness {
+  id: number;
+  name: string;
+  slug: string;
+  status: "pending" | "approved" | "rejected";
+  rejectionReason: string | null;
+  description: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  website: string | null;
+  verified: boolean;
+  featured: boolean;
+  createdAt: string;
+  category: { id: number; name: string; slug: string };
+  location: { id: number; name: string; slug: string };
+  businessPhotos: BusinessPhoto[];
+  businessServices: BusinessService[];
+  businessHours: BusinessHour[];
+}
+
+export default function MyBusinessesPage() {
+  const { data: session, status: authStatus } = useSession();
+  const user = session?.user;
+
+  const [businesses, setBusinesses] = useState<UserBusiness[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Preview Modal State
+  const [previewBusiness, setPreviewBusiness] = useState<UserBusiness | null>(null);
+
+  useEffect(() => {
+    if (authStatus === "authenticated") {
+      fetchMyBusinesses();
+    }
+  }, [authStatus]);
+
+  const fetchMyBusinesses = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/my-businesses");
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to load businesses");
+      }
+      const data = await res.json();
+      setBusinesses(data);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  if (authStatus === "loading") {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-xs text-slate-500 font-medium">
+        Loading session...
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16">
+      {/* Header Bar */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 font-bold text-brand-navy text-lg tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-brand-green text-white flex items-center justify-center font-black text-sm">
+              KC
+            </div>
+            <span>KochiClassifieds</span>
+          </Link>
+
+          <div className="flex items-center gap-4 text-xs">
+            <Link
+              href="/"
+              className="text-slate-600 hover:text-brand-navy font-semibold transition-colors hidden sm:inline"
+            >
+              Directory Home
+            </Link>
+            <Link
+              href="/my-businesses"
+              className="text-brand-green font-bold transition-colors"
+            >
+              My Businesses
+            </Link>
+            <Link
+              href="/dashboard"
+              className="text-slate-600 hover:text-brand-navy font-semibold transition-colors"
+            >
+              Dashboard
+            </Link>
+
+            <span className="text-slate-300">|</span>
+
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-brand-navy hidden md:inline">{user?.name}</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-bold text-[10px] uppercase border border-brand-green/20">
+                {user?.role}
+              </span>
+            </div>
+
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex items-center gap-1 font-medium text-slate-500 hover:text-rose-600 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 pt-8 space-y-6">
+        {/* Top Banner */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold text-brand-navy flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-brand-green" />
+              My Business Listings
+            </h1>
+            <p className="text-xs text-slate-600 mt-1">
+              Manage your submitted local business listings, track approval status, view feedback, and preview your listings.
+            </p>
+          </div>
+
+          <Link
+            href="/add-business"
+            className="px-4 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center gap-2 shrink-0"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Add New Business
+          </Link>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Loading Spinner */}
+        {isLoading ? (
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center text-slate-500 text-xs font-semibold space-y-3">
+            <div className="w-8 h-8 border-3 border-brand-green border-t-transparent rounded-full animate-spin mx-auto" />
+            <p>Fetching your business listings...</p>
+          </div>
+        ) : businesses.length === 0 ? (
+          /* Empty State */
+          <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-4 max-w-lg mx-auto my-8">
+            <div className="w-16 h-16 bg-brand-green-light text-brand-green rounded-full flex items-center justify-center mx-auto">
+              <Building2 className="w-8 h-8" />
+            </div>
+            <h2 className="text-lg font-bold text-brand-navy">No Business Listings Found</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              You haven’t added any business listings yet. Register your local shop, service, or company on KochiClassifieds to reach local customers.
+            </p>
+            <Link
+              href="/add-business"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add Your Business
+            </Link>
+          </div>
+        ) : (
+          /* Business Listings Grid / Cards */
+          <div className="grid grid-cols-1 gap-4">
+            {businesses.map((biz) => {
+              const coverPhoto = biz.businessPhotos?.[0]?.imageUrl || null;
+
+              return (
+                <div
+                  key={biz.id}
+                  className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:border-slate-300 transition-all flex flex-col md:flex-row"
+                >
+                  {/* Photo Thumbnail */}
+                  <div className="md:w-48 h-36 md:h-auto bg-slate-100 shrink-0 relative overflow-hidden flex items-center justify-center">
+                    {coverPhoto ? (
+                      <img
+                        src={coverPhoto}
+                        alt={biz.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-brand-green-light text-brand-green flex flex-col items-center justify-center p-4">
+                        <Building2 className="w-10 h-10 text-brand-green mb-1" />
+                        <span className="text-[10px] font-bold text-slate-400">No Photo</span>
+                      </div>
+                    )}
+
+                    {/* Featured / Verified Badge */}
+                    <div className="absolute top-2 left-2 flex flex-col gap-1">
+                      {biz.verified && (
+                        <span className="p-1 rounded-full bg-emerald-600 text-white shadow" title="Verified Listing">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Listing Content Details */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      {/* Category & Location Badges + Date */}
+                      <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green font-bold text-[11px] border border-brand-green/20">
+                            <FolderTree className="w-3 h-3" />
+                            {biz.category?.name || "Category"}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-blue-light text-brand-blue font-bold text-[11px] border border-brand-blue/20">
+                            <MapPin className="w-3 h-3" />
+                            {biz.location?.name || "Kochi"}
+                          </span>
+                        </div>
+
+                        <div className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          Submitted {formatDate(biz.createdAt)}
+                        </div>
+                      </div>
+
+                      {/* Business Title & Link */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          {biz.status === "approved" ? (
+                            <Link
+                              href={`/business/${biz.slug}`}
+                              className="text-lg font-bold text-brand-navy hover:text-brand-green transition-colors inline-flex items-center gap-1.5"
+                            >
+                              <span>{biz.name}</span>
+                              <ExternalLink className="w-4 h-4 text-brand-blue" />
+                            </Link>
+                          ) : (
+                            <h2 className="text-lg font-bold text-brand-navy">
+                              {biz.name}
+                            </h2>
+                          )}
+                          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
+                            {biz.address || "Kochi, Kerala"}
+                          </p>
+                        </div>
+
+                        {/* Status Badge */}
+                        <div className="shrink-0">
+                          {biz.status === "approved" && (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs border border-emerald-300 shadow-2xs">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              Approved
+                            </span>
+                          )}
+
+                          {biz.status === "pending" && (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs border border-amber-300 shadow-2xs">
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                              Pending Approval
+                            </span>
+                          )}
+
+                          {biz.status === "rejected" && (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-100 text-rose-800 font-extrabold text-xs border border-rose-300 shadow-2xs">
+                              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                              Rejected
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Rejection Reason Feedback Banner */}
+                      {biz.status === "rejected" && (
+                        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
+                          <span className="font-bold flex items-center gap-1 text-rose-900">
+                            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                            Reason for Rejection:
+                          </span>
+                          <p className="pl-4 leading-relaxed font-medium">
+                            {biz.rejectionReason || "No explicit reason specified by admin."}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions Bar */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-3">
+                      <div className="flex items-center gap-2">
+                        {biz.status === "approved" && (
+                          <Link
+                            href={`/business/${biz.slug}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold transition-colors"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            View Public Page
+                          </Link>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => setPreviewBusiness(biz)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-brand-blue" />
+                        Preview Submission
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      {/* Submission Preview Modal */}
+      {previewBusiness && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full my-8 overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-5 bg-brand-card border-b border-slate-200 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-brand-green-light text-brand-green flex items-center justify-center font-bold">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-brand-navy truncate max-w-sm">
+                    {previewBusiness.name}
+                  </h2>
+                  <p className="text-[11px] text-slate-500">
+                    Submission Preview (ID: #{previewBusiness.id})
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setPreviewBusiness(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-brand-navy hover:bg-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 overflow-y-auto space-y-6 text-xs">
+              {/* Status Header inside Modal */}
+              <div className="p-4 rounded-xl border flex items-center justify-between gap-3 bg-slate-50 border-slate-200">
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Approval Status</span>
+                  <div className="font-bold text-sm text-brand-navy flex items-center gap-1.5">
+                    {previewBusiness.status === "approved" && (
+                      <span className="text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Approved & Published
+                      </span>
+                    )}
+                    {previewBusiness.status === "pending" && (
+                      <span className="text-amber-700 flex items-center gap-1">
+                        <Clock className="w-4 h-4 text-amber-600" /> Pending Admin Review
+                      </span>
+                    )}
+                    {previewBusiness.status === "rejected" && (
+                      <span className="text-rose-700 flex items-center gap-1">
+                        <XCircle className="w-4 h-4 text-rose-600" /> Listing Rejected
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Submission Date</span>
+                  <span className="font-bold text-slate-700">{formatDate(previewBusiness.createdAt)}</span>
+                </div>
+              </div>
+
+              {/* Rejection Reason inside Modal */}
+              {previewBusiness.status === "rejected" && previewBusiness.rejectionReason && (
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 space-y-1">
+                  <span className="font-bold flex items-center gap-1 text-rose-900 text-xs">
+                    <AlertCircle className="w-4 h-4 text-rose-600" /> Admin Rejection Reason:
+                  </span>
+                  <p className="leading-relaxed font-medium pl-5">{previewBusiness.rejectionReason}</p>
+                </div>
+              )}
+
+              {/* Category & Location */}
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Category</span>
+                  <span className="font-bold text-brand-navy text-xs">{previewBusiness.category?.name}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Location</span>
+                  <span className="font-bold text-brand-navy text-xs">{previewBusiness.location?.name}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-1.5">
+                <h3 className="font-bold text-brand-navy uppercase text-[11px] flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-brand-green" /> Description
+                </h3>
+                <p className="text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  {previewBusiness.description || "No description provided."}
+                </p>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-2">
+                <h3 className="font-bold text-brand-navy uppercase text-[11px] flex items-center gap-1.5">
+                  <Phone className="w-4 h-4 text-brand-blue" /> Contact Information
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-slate-400" />
+                    <span>Phone: <strong>{previewBusiness.phone || "N/A"}</strong></span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-emerald-600" />
+                    <span>WhatsApp: <strong>{previewBusiness.whatsapp || "N/A"}</strong></span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-slate-400" />
+                    <span>Email: <strong>{previewBusiness.email || "N/A"}</strong></span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-slate-400" />
+                    <span className="truncate">Website: <strong>{previewBusiness.website || "N/A"}</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Photo Gallery */}
+              {previewBusiness.businessPhotos && previewBusiness.businessPhotos.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-bold text-brand-navy uppercase text-[11px] flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-brand-blue" /> Uploaded Photos ({previewBusiness.businessPhotos.length})
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {previewBusiness.businessPhotos.map((photo) => (
+                      <div key={photo.id} className="h-24 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                        <img
+                          src={photo.imageUrl}
+                          alt={photo.altText || previewBusiness.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Services */}
+              {previewBusiness.businessServices && previewBusiness.businessServices.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-bold text-brand-navy uppercase text-[11px] flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-500" /> Services & Products ({previewBusiness.businessServices.length})
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {previewBusiness.businessServices.map((svc) => (
+                      <div key={svc.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-start">
+                        <div>
+                          <p className="font-bold text-brand-navy">{svc.serviceName}</p>
+                          {svc.description && <p className="text-[11px] text-slate-500">{svc.description}</p>}
+                        </div>
+                        {svc.price && (
+                          <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                            ₹{String(svc.price)}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+              {previewBusiness.status === "approved" ? (
+                <Link
+                  href={`/business/${previewBusiness.slug}`}
+                  className="px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  View Live Public Page
+                </Link>
+              ) : (
+                <div className="text-[11px] text-slate-500 font-medium">
+                  {previewBusiness.status === "pending"
+                    ? "Your listing will become publicly visible once approved by an admin."
+                    : "Listing rejected. Please address feedback before re-submitting."}
+                </div>
+              )}
+
+              <button
+                onClick={() => setPreviewBusiness(null)}
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-colors"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

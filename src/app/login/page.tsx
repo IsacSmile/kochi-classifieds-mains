@@ -17,9 +17,11 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     urlError === "AccessDeniedAdminOnly"
-      ? "Access restricted: Only administrators can access /admin routes."
+      ? "Access Restricted: Only administrator accounts can access /admin routes."
       : urlError === "AccessDeniedBusinessOnly"
-      ? "Access restricted: Only business owners and admins can access /dashboard routes."
+      ? "Access Restricted: Only business owners and admins can access dashboard and my-businesses routes."
+      : urlError
+      ? `Access Error: ${urlError}`
       : null
   );
 

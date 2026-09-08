@@ -3,6 +3,150 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const q = searchParams.get("q")?.trim() || "";
+    const categorySlug = searchParams.get("category")?.trim() || "";
+    const locationSlug = searchParams.get("location")?.trim() || "";
+    const verified = searchParams.get("verified");
+    const featured = searchParams.get("featured");
+
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      status: "approved",
+    };
+
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { address: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    if (verified === "true") {
+      where.verified = true;
+    }
+
+    if (featured === "true") {
+      where.featured = true;
+    }
+
+    // Filter by category slug if provided
+    if (categorySlug) {
+      const categoryObj = await prisma.category.findUnique({
+        where: { slug: categorySlug },
+        select: { id: true },
+      });
+
+      if (categoryObj) {
+        where.OR = where.OR
+          ? [
+              {
+                AND: [
+                  { OR: where.OR },
+                  {
+                    OR: [
+                      { categoryId: categoryObj.id },
+                      { category: { parentId: categoryObj.id } },
+                    ],
+                  },
+                ],
+              },
+            ]
+          : [
+              { categoryId: categoryObj.id },
+              { category: { parentId: categoryObj.id } },
+            ];
+      } else {
+        // Category slug doesn't match any existing category -> empty results
+        return NextResponse.json({
+          businesses: [],
+          total: 0,
+          page,
+          totalPages: 0,
+          limit,
+        });
+      }
+    }
+
+    // Filter by location slug if provided
+    if (locationSlug) {
+      const locationObj = await prisma.location.findUnique({
+        where: { slug: locationSlug },
+        select: { id: true },
+      });
+
+      if (locationObj) {
+        if (where.OR) {
+          const previousOR = where.OR;
+          delete where.OR;
+          where.AND = [
+            { OR: previousOR },
+            {
+              OR: [
+                { locationId: locationObj.id },
+                { location: { parentId: locationObj.id } },
+              ],
+            },
+          ];
+        } else {
+          where.OR = [
+            { locationId: locationObj.id },
+            { location: { parentId: locationObj.id } },
+          ];
+        }
+      } else {
+        // Location slug doesn't match any existing location -> empty results
+        return NextResponse.json({
+          businesses: [],
+          total: 0,
+          page,
+          totalPages: 0,
+          limit,
+        });
+      }
+    }
+
+    const [total, businesses] = await Promise.all([
+      prisma.business.count({ where }),
+      prisma.business.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          location: { select: { id: true, name: true, slug: true } },
+          businessPhotos: { orderBy: { sortOrder: "asc" } },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return NextResponse.json({
+      businesses,
+      total,
+      page,
+      totalPages,
+      limit,
+    });
+  } catch (error: any) {
+    console.error("Failed to fetch search businesses:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to search businesses" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);

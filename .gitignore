@@ -8,3 +8,4 @@ dist
 *.log
 data
 .postgres_data
+*.tsbuildinfo

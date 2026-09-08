@@ -42,9 +42,18 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // Protect /add-business -> Require logged-in user (role: user, business_owner, or admin)
+  if (pathname.startsWith("/add-business")) {
+    if (!token) {
+      const url = new URL("/login", req.url);
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/add-business"],
 };

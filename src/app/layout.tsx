@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
   title: "Kochi Classifieds Admin",
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-white text-brand-navy min-h-screen">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

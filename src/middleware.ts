@@ -1,0 +1,46 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const role = token?.role;
+
+  // Protect /admin/* -> Only role === "admin"
+  if (pathname.startsWith("/admin")) {
+    if (!token) {
+      const url = new URL("/login", req.url);
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
+    }
+
+    if (role !== "admin") {
+      const url = new URL("/login", req.url);
+      url.searchParams.set("error", "AccessDeniedAdminOnly");
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Protect /dashboard/* -> Only role === "business_owner" or role === "admin"
+  if (pathname.startsWith("/dashboard")) {
+    if (!token) {
+      const url = new URL("/login", req.url);
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
+    }
+
+    if (role !== "business_owner" && role !== "admin") {
+      const url = new URL("/login", req.url);
+      url.searchParams.set("error", "AccessDeniedBusinessOnly");
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/admin/:path*", "/dashboard/:path*"],
+};

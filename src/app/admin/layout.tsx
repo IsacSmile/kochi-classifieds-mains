@@ -12,6 +12,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const user = session?.user;
   const isAdminUser = user?.role === "admin";
 
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-6 text-xs text-slate-500 font-medium">
@@ -83,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </span>
 
                 <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  onClick={() => signOut({ callbackUrl: "/admin/login" })}
                   className="flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 transition-colors"
                   title="Sign Out"
                 >
@@ -94,7 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           ) : (
             <Link
-              href="/login"
+              href="/admin/login"
               className="flex items-center justify-center gap-2 w-full py-2 bg-brand-green hover:bg-brand-green-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
             >
               <User className="w-3.5 h-3.5" />
@@ -146,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </p>
               <div className="flex items-center justify-center gap-3">
                 <Link
-                  href="/login"
+                  href="/admin/login"
                   className="px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-semibold rounded-lg text-xs transition-colors shadow-sm"
                 >
                   Sign in as Admin

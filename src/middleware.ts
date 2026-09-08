@@ -10,14 +10,18 @@ export async function middleware(req: NextRequest) {
 
   // Protect /admin/* -> Only role === "admin"
   if (pathname.startsWith("/admin")) {
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
+
     if (!token) {
-      const url = new URL("/login", req.url);
+      const url = new URL("/admin/login", req.url);
       url.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(url);
     }
 
     if (role !== "admin") {
-      const url = new URL("/login", req.url);
+      const url = new URL("/admin/login", req.url);
       url.searchParams.set("error", "AccessDeniedAdminOnly");
       return NextResponse.redirect(url);
     }

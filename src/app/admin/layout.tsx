@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { FolderTree, MapPin, ShieldCheck, ShieldAlert, LogOut, User, LayoutDashboard } from "lucide-react";
+import { FolderTree, MapPin, ShieldCheck, ShieldAlert, LogOut, User, LayoutDashboard, Clock, Building2 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -42,6 +42,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Directory Management
           </div>
           
+          <Link
+            href="/admin/businesses/pending"
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+              pathname === "/admin/businesses/pending"
+                ? "bg-brand-green text-white shadow-sm"
+                : "text-slate-600 hover:text-brand-navy hover:bg-white"
+            }`}
+          >
+            <Clock className="w-4 h-4 text-amber-500" />
+            Pending Approvals
+          </Link>
+
+          <Link
+            href="/admin/businesses"
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+              pathname === "/admin/businesses"
+                ? "bg-brand-green text-white shadow-sm"
+                : "text-slate-600 hover:text-brand-navy hover:bg-white"
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            All Businesses
+          </Link>
+
           <Link
             href="/admin/categories"
             className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
@@ -114,7 +138,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-base font-bold text-brand-navy">
-              {pathname?.includes("/categories") ? "Categories CRUD" : "Locations CRUD"}
+              {pathname === "/admin/businesses/pending"
+                ? "Pending Business Approvals"
+                : pathname === "/admin/businesses"
+                ? "All Businesses Management"
+                : pathname?.includes("/categories")
+                ? "Categories Management"
+                : "Locations Management"}
             </h1>
             <span className="text-slate-300">|</span>
             <span className="text-xs text-slate-500">KochiClassifieds.in Business Directory Admin</span>

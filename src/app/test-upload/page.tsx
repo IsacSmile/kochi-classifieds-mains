@@ -163,7 +163,7 @@ export default function TestUploadPage() {
 
         {uploadedUrl && (
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3 text-center">
-            <h3 className="text-xs font-bold text-brand-navy uppercase tracking-wider text-slate-400">
+            <h3 className="text-xs font-bold text-brand-navy uppercase tracking-wider">
               Cloudinary Image Preview
             </h3>
             <div className="flex justify-center">

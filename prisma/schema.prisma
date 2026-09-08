@@ -98,10 +98,11 @@ model Business {
   whatsapp    String?
   email       String?
   website     String?
-  status      BusinessStatus @default(pending)
-  verified    Boolean        @default(false)
-  featured    Boolean        @default(false)
-  createdAt   DateTime       @default(now()) @map("created_at")
+  status          BusinessStatus @default(pending)
+  rejectionReason String?        @map("rejection_reason") @db.Text
+  verified        Boolean        @default(false)
+  featured        Boolean        @default(false)
+  createdAt       DateTime       @default(now()) @map("created_at")
 
   // Relations
   owner            User              @relation(fields: [ownerId], references: [id], onDelete: Restrict)

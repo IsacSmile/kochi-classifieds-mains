@@ -113,25 +113,16 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE UNIQUE INDEX "categories_slug_key" ON "categories"("slug");
 
 -- CreateIndex
-CREATE INDEX "categories_slug_idx" ON "categories"("slug");
-
--- CreateIndex
 CREATE INDEX "categories_parent_id_idx" ON "categories"("parent_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "locations_slug_key" ON "locations"("slug");
 
 -- CreateIndex
-CREATE INDEX "locations_slug_idx" ON "locations"("slug");
-
--- CreateIndex
 CREATE INDEX "locations_parent_id_idx" ON "locations"("parent_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "businesses_slug_key" ON "businesses"("slug");
-
--- CreateIndex
-CREATE INDEX "businesses_slug_idx" ON "businesses"("slug");
 
 -- CreateIndex
 CREATE INDEX "businesses_category_id_idx" ON "businesses"("category_id");

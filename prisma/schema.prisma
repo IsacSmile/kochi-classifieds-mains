@@ -58,7 +58,6 @@ model Category {
   children   Category[] @relation("CategoryHierarchy")
   businesses Business[]
 
-  @@index([slug])
   @@index([parentId])
   @@map("categories")
 }
@@ -78,7 +77,6 @@ model Location {
   children   Location[] @relation("LocationHierarchy")
   businesses Business[]
 
-  @@index([slug])
   @@index([parentId])
   @@map("locations")
 }
@@ -112,7 +110,6 @@ model Business {
   businessPhotos   BusinessPhoto[]
   businessHours    BusinessHour[]
 
-  @@index([slug])
   @@index([categoryId])
   @@index([locationId])
   @@index([ownerId])

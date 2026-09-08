@@ -71,6 +71,7 @@ model Location {
   latitude  Float?
   longitude Float?
   status    String @default("active")
+  sortOrder Int    @default(0) @map("sort_order")
 
   // Relations
   parent     Location?  @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: SetNull)

@@ -3,8 +3,9 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { Mail, Lock, AlertCircle, ArrowRight } from "lucide-react";
+import { showLoginSuccessToast, showLoginErrorToast } from "@/lib/toast";
 
 function LoginForm() {
   const router = useRouter();
@@ -38,14 +39,20 @@ function LoginForm() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        const errorMessage = result.error === "CredentialsSignin" ? "Invalid email or password" : result.error;
+        setError(errorMessage);
+        showLoginErrorToast(errorMessage);
         setLoading(false);
       } else {
+        const session = await getSession();
+        showLoginSuccessToast(session?.user?.name);
         router.push(callbackUrl);
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      const errMsg = err.message || "An unexpected error occurred. Please try again.";
+      setError(errMsg);
+      showLoginErrorToast(errMsg);
       setLoading(false);
     }
   };

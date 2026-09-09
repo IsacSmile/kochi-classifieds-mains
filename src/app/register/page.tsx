@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { UserPlus, User, Mail, Phone, Lock, AlertCircle, ArrowRight } from "lucide-react";
+import { showRegisterSuccessToast, showLoginSuccessToast, showLoginErrorToast } from "@/lib/toast";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,13 +27,17 @@ export default function RegisterPage() {
     setError(null);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      const errMsg = "Passwords do not match.";
+      setError(errMsg);
+      showLoginErrorToast(errMsg);
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      const errMsg = "Password must be at least 6 characters.";
+      setError(errMsg);
+      showLoginErrorToast(errMsg);
       setLoading(false);
       return;
     }
@@ -54,6 +59,8 @@ export default function RegisterPage() {
         throw new Error(data.error || "Registration failed.");
       }
 
+      showRegisterSuccessToast();
+
       // Auto sign in upon registration
       const loginResult = await signIn("credentials", {
         redirect: false,
@@ -64,11 +71,15 @@ export default function RegisterPage() {
       if (loginResult?.error) {
         router.push("/login?registered=true");
       } else {
+        const session = await getSession();
+        showLoginSuccessToast(session?.user?.name || formData.name);
         router.push("/dashboard");
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred during registration.");
+      const errMsg = err.message || "An unexpected error occurred during registration.";
+      setError(errMsg);
+      showLoginErrorToast(errMsg);
       setLoading(false);
     }
   };

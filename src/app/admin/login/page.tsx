@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signOut, getSession } from "next-auth/react";
 import { ShieldCheck, Mail, Lock, AlertCircle, ArrowRight, ShieldAlert } from "lucide-react";
+import { showLoginSuccessToast, showLoginErrorToast } from "@/lib/toast";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -38,22 +39,29 @@ function AdminLoginForm() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        const errorMsg = result.error === "CredentialsSignin" ? "Invalid email or password" : result.error;
+        setError(errorMsg);
+        showLoginErrorToast(errorMsg);
         setLoading(false);
       } else {
         // Fetch current session to verify role is admin
         const session = await getSession();
         if (session?.user?.role !== "admin") {
           await signOut({ redirect: false });
-          setError("Access denied: Only administrator accounts (role=admin) can access the admin portal.");
+          const accessDeniedMsg = "Access denied: Only administrator accounts (role=admin) can access the admin portal.";
+          setError(accessDeniedMsg);
+          showLoginErrorToast("Access denied: Only administrator accounts can access the admin portal.");
           setLoading(false);
         } else {
+          showLoginSuccessToast(session?.user?.name);
           router.push(callbackUrl);
           router.refresh();
         }
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      const errMsg = err.message || "An unexpected error occurred. Please try again.";
+      setError(errMsg);
+      showLoginErrorToast(errMsg);
       setLoading(false);
     }
   };

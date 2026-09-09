@@ -13,6 +13,7 @@ import {
   Clock,
   Building2,
 } from "lucide-react";
+import { showLogoutToast } from "@/lib/toast";
 
 export default function AdminClientLayout({
   children,
@@ -130,7 +131,10 @@ export default function AdminClientLayout({
                 </span>
 
                 <button
-                  onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                  onClick={() => {
+                    showLogoutToast();
+                    signOut({ callbackUrl: "/admin/login" });
+                  }}
                   className="flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 transition-colors"
                   title="Sign Out"
                 >

@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { LayoutDashboard, Building2, FolderTree, MapPin, LogOut, ShieldCheck, User } from "lucide-react";
+import { showLogoutToast } from "@/lib/toast";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -44,7 +45,10 @@ export default function DashboardPage() {
           </div>
 
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => {
+              showLogoutToast();
+              signOut({ callbackUrl: "/login" });
+            }}
             className="flex items-center gap-1 font-medium text-slate-500 hover:text-rose-600 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />

@@ -252,8 +252,8 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
-      {/* Table List */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* Table & Cards List */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
         {loading ? (
           <div className="p-12 text-center text-slate-500 text-sm">Loading categories...</div>
         ) : flattenedCategories.length === 0 ? (
@@ -261,127 +261,208 @@ export default function AdminCategoriesPage() {
             No categories found. Click "Add Category" to create your first category.
           </div>
         ) : (
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-brand-card text-brand-navy border-b border-slate-200 font-bold uppercase tracking-wider">
-              <tr>
-                <th className="py-3 px-4 w-10">Reorder</th>
-                <th className="py-3 px-4">Category Name</th>
-                <th className="py-3 px-4">Slug</th>
-                <th className="py-3 px-4">Type / Parent</th>
-                <th className="py-3 px-4">Sort Order</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {flattenedCategories.map((cat, index) => (
-                <tr
-                  key={cat.id}
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragEnd={handleDragEnd}
-                  className={`hover:bg-brand-card transition-colors ${
-                    draggedIndex === index ? "bg-brand-green-light/50 opacity-60" : ""
-                  }`}
-                >
-                  <td className="py-3 px-4 cursor-grab text-slate-400 hover:text-brand-navy">
-                    <GripVertical className="w-4 h-4" />
-                  </td>
-
-                  <td className="py-3 px-4 font-bold text-brand-navy">
-                    <div className="flex items-center gap-2" style={{ paddingLeft: `${cat.level * 24}px` }}>
-                      {cat.level > 0 && <CornerDownRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-                      <span className="w-6 h-6 rounded bg-brand-green-light flex items-center justify-center shrink-0">
-                        <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-3.5 h-3.5 text-brand-green" />
-                      </span>
-                      <span>{cat.name}</span>
-                    </div>
-                  </td>
-
-                  <td className="py-3 px-4 text-slate-600 font-mono text-[11px]">
-                    {cat.slug}
-                  </td>
-
-                  <td className="py-3 px-4 text-slate-600">
-                    {cat.parentId ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-blue-light text-brand-blue font-medium text-[11px]">
-                        Subcategory of: <strong>{cat.parent?.name || `ID ${cat.parentId}`}</strong>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-semibold text-[11px]">
-                        Top-Level Category
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="py-3 px-4 font-mono font-medium text-brand-navy">
-                    {cat.sortOrder}
-                  </td>
-
-                  <td className="py-3 px-4">
-                    {cat.status === "active" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-green-light text-brand-green border border-brand-green/20 text-[11px] font-semibold">
-                        <CheckCircle2 className="w-3 h-3 text-brand-green" /> Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-medium">
-                        <XCircle className="w-3 h-3 text-slate-400" /> Inactive
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      {!cat.parentId && (
-                        <button
-                          onClick={() => openCreateModal(cat.id)}
-                          className="px-2 py-1 bg-brand-blue-light hover:bg-brand-blue hover:text-white text-brand-blue rounded text-[11px] font-semibold transition-colors"
-                          title="Add Subcategory"
-                        >
-                          + Sub
-                        </button>
-                      )}
-                      <button
-                        onClick={() => openEditModal(cat)}
-                        className="p-1.5 text-slate-600 hover:text-brand-blue hover:bg-brand-blue-light rounded transition-colors"
-                        title="Edit Category"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeletingId(cat.id)}
-                        className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
-                        title="Delete Category"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
+          <>
+            {/* Desktop Table View (lg+) */}
+            <table className="hidden lg:table w-full text-left text-xs border-collapse">
+              <thead className="bg-brand-card text-brand-navy border-b border-slate-200 font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3 px-4 w-10 whitespace-nowrap">Reorder</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Category Name</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Slug</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Type / Parent</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Sort Order</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">Actions</th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {flattenedCategories.map((cat, index) => (
+                  <tr
+                    key={cat.id}
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragEnd={handleDragEnd}
+                    className={`hover:bg-brand-card transition-colors ${
+                      draggedIndex === index ? "bg-brand-green-light/50 opacity-60" : ""
+                    }`}
+                  >
+                    <td className="py-3 px-4 cursor-grab text-slate-400 hover:text-brand-navy whitespace-nowrap">
+                      <GripVertical className="w-4 h-4" />
+                    </td>
+
+                    <td className="py-3 px-4 font-bold text-brand-navy whitespace-nowrap">
+                      <div className="flex items-center gap-2" style={{ paddingLeft: `${cat.level * 24}px` }}>
+                        {cat.level > 0 && <CornerDownRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
+                        <span className="w-6 h-6 rounded bg-brand-green-light flex items-center justify-center shrink-0">
+                          <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-3.5 h-3.5 text-brand-green" />
+                        </span>
+                        <span>{cat.name}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-4 text-slate-600 font-mono text-[11px] whitespace-nowrap">
+                      {cat.slug}
+                    </td>
+
+                    <td className="py-3 px-4 text-slate-600 whitespace-nowrap">
+                      {cat.parentId ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-brand-blue-light text-brand-blue font-medium text-[11px] whitespace-nowrap">
+                          Subcategory of: <strong>{cat.parent?.name || `ID ${cat.parentId}`}</strong>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-brand-green-light text-brand-green font-semibold text-[11px] whitespace-nowrap">
+                          Top-Level Category
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-4 font-mono font-medium text-brand-navy whitespace-nowrap">
+                      {cat.sortOrder}
+                    </td>
+
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {cat.status === "active" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green border border-brand-green/20 text-[11px] font-semibold whitespace-nowrap">
+                          <CheckCircle2 className="w-3 h-3 text-brand-green shrink-0" /> Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-medium whitespace-nowrap">
+                          <XCircle className="w-3 h-3 text-slate-400 shrink-0" /> Inactive
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                        {!cat.parentId && (
+                          <button
+                            onClick={() => openCreateModal(cat.id)}
+                            className="px-2 py-1 bg-brand-blue-light hover:bg-brand-blue hover:text-white text-brand-blue rounded text-[11px] font-semibold transition-colors"
+                            title="Add Subcategory"
+                          >
+                            + Sub
+                          </button>
+                        )}
+                        <button
+                          onClick={() => openEditModal(cat)}
+                          className="p-1.5 text-slate-600 hover:text-brand-blue hover:bg-brand-blue-light rounded transition-colors"
+                          title="Edit Category"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeletingId(cat.id)}
+                          className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                          title="Delete Category"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile / Tablet Stacked Cards View (< lg) */}
+            <div className="block lg:hidden divide-y divide-slate-200">
+              {flattenedCategories.map((cat) => (
+                <div key={cat.id} className="p-4 space-y-3 bg-white hover:bg-slate-50 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0" style={{ paddingLeft: `${Math.min(cat.level * 16, 32)}px` }}>
+                      {cat.level > 0 && <CornerDownRight className="w-4 h-4 text-slate-400 shrink-0" />}
+                      <span className="w-8 h-8 rounded-lg bg-brand-green-light flex items-center justify-center shrink-0">
+                        <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-4 h-4 text-brand-green" />
+                      </span>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-brand-navy text-sm truncate">{cat.name}</h4>
+                        <p className="font-mono text-[11px] text-slate-500 truncate">slug: {cat.slug}</p>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0">
+                      {cat.status === "active" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-green-light text-brand-green border border-brand-green/20 text-[11px] font-semibold">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-brand-green" /> Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-medium">
+                          <XCircle className="w-3.5 h-3.5 text-slate-400" /> Inactive
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-slate-600">
+                    <div>
+                      {cat.parentId ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-blue-light text-brand-blue font-medium text-[11px]">
+                          Subcategory of: <strong>{cat.parent?.name || `ID ${cat.parentId}`}</strong>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-semibold text-[11px]">
+                          Top-Level Category
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[11px] font-mono text-slate-500">
+                      Order: <span className="font-bold text-brand-navy">{cat.sortOrder}</span>
+                    </div>
+                  </div>
+
+                  {/* Touch-friendly Action Buttons (min 44px target) */}
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    {!cat.parentId && (
+                      <button
+                        onClick={() => openCreateModal(cat.id)}
+                        className="min-h-[44px] px-3.5 py-2 bg-brand-blue-light hover:bg-brand-blue hover:text-white text-brand-blue rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        + Subcategory
+                      </button>
+                    )}
+                    <button
+                      onClick={() => openEditModal(cat)}
+                      className="min-h-[44px] min-w-[44px] px-3.5 py-2 text-slate-700 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                      title="Edit Category"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => setDeletingId(cat.id)}
+                      className="min-h-[44px] min-w-[44px] px-3.5 py-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
 
       {/* Modal Form: Create / Edit Category */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border border-slate-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-brand-card">
+          <div className="bg-white w-full max-w-lg max-h-[90vh] flex flex-col rounded-xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-brand-card shrink-0">
               <h3 className="text-base font-bold text-brand-navy">
                 {editingCategory ? "Edit Category" : "Create New Category"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-brand-navy font-bold text-lg"
+                className="text-slate-400 hover:text-brand-navy font-bold text-lg p-1"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleFormSubmit} className="p-6 space-y-4 text-xs">
+            <form onSubmit={handleFormSubmit} className="p-4 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
               <div>
                 <label className="block font-bold text-brand-navy mb-1">
                   Category Name <span className="text-rose-500">*</span>
@@ -425,7 +506,7 @@ export default function AdminCategoriesPage() {
                 searchable
               />
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-brand-navy mb-1">
                     Sort Order
@@ -478,18 +559,18 @@ export default function AdminCategoriesPage() {
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors min-h-[44px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-semibold rounded-lg shadow-sm transition-colors"
+                  className="px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-semibold rounded-lg shadow-sm transition-colors min-h-[44px]"
                 >
                   {saving ? "Saving..." : editingCategory ? "Update Category" : "Create Category"}
                 </button>

@@ -122,7 +122,7 @@ function AdminLoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-brand-green hover:bg-brand-green-hover text-white font-semibold rounded-lg shadow-sm transition-colors text-xs flex items-center justify-center gap-2"
+          className="w-full py-2.5 min-h-[44px] bg-brand-green hover:bg-brand-green-hover text-white font-semibold rounded-lg shadow-sm transition-colors text-xs flex items-center justify-center gap-2"
         >
           {loading ? (
             "Authenticating Admin..."

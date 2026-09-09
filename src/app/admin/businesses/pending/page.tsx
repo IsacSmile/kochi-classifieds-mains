@@ -190,7 +190,7 @@ export default function AdminPendingBusinessesPage() {
         </div>
       )}
 
-      {/* Pending Businesses Table */}
+      {/* Pending Businesses Table & Cards */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
         {loading ? (
           <div className="p-12 text-center text-slate-500 text-sm flex flex-col items-center gap-2">
@@ -203,121 +203,197 @@ export default function AdminPendingBusinessesPage() {
             No pending submissions to review. All submissions are processed!
           </div>
         ) : (
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-brand-card text-brand-navy border-b border-slate-200 font-bold uppercase tracking-wider">
-              <tr>
-                <th className="py-3.5 px-4">Business Name</th>
-                <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Location</th>
-                <th className="py-3.5 px-4">Owner Email</th>
-                <th className="py-3.5 px-4">Submitted Date</th>
-                <th className="py-3.5 px-4 text-center">Preview</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
+          <>
+            {/* Desktop Table View (lg+) */}
+            <table className="hidden lg:table w-full text-left text-xs border-collapse">
+              <thead className="bg-brand-card text-brand-navy border-b border-slate-200 font-bold uppercase tracking-wider">
+                <tr>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Business Name</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Category</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Location</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Owner Email</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Submitted Date</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {businesses.map((b) => (
+                  <tr key={b.id} className="hover:bg-brand-card transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-brand-navy whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-brand-green shrink-0" />
+                        <span>{b.name}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-slate-700 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-brand-green-light text-brand-green font-semibold text-[11px] whitespace-nowrap">
+                        <FolderTree className="w-3 h-3 shrink-0" />
+                        {b.category?.name || "Uncategorized"}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-slate-700 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-brand-blue-light text-brand-blue font-semibold text-[11px] whitespace-nowrap">
+                        <MapPin className="w-3 h-3 shrink-0" />
+                        {b.location?.name || "Unspecified"}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-slate-600 font-mono text-[11px] whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span>{b.owner?.email || b.email || "N/A"}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-slate-500 text-[11px] whitespace-nowrap">
+                      {new Date(b.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                        <button
+                          onClick={() => setPreviewBusiness(b)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+                          title="Preview Submission Details"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Preview
+                        </button>
+
+                        <button
+                          onClick={() => handleApprove(b.id)}
+                          disabled={actionLoadingId === b.id}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs shadow-sm transition-colors disabled:opacity-50"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Approve
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setRejectBusiness(b);
+                            setRejectionReason("");
+                            setRejectError(null);
+                          }}
+                          disabled={actionLoadingId === b.id}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs shadow-sm transition-colors disabled:opacity-50"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile / Tablet Stacked Cards View (< lg) */}
+            <div className="block lg:hidden divide-y divide-slate-200">
               {businesses.map((b) => (
-                <tr key={b.id} className="hover:bg-brand-card transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-brand-navy">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-brand-green shrink-0" />
-                      <span>{b.name}</span>
+                <div key={b.id} className="p-4 space-y-3 bg-white hover:bg-slate-50 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Building2 className="w-5 h-5 text-brand-green shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-brand-navy text-sm truncate">{b.name}</h4>
+                        <div className="flex items-center gap-1 font-mono text-[11px] text-slate-500 truncate">
+                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="truncate">{b.owner?.email || b.email || "No email"}</span>
+                        </div>
+                      </div>
                     </div>
-                  </td>
 
-                  <td className="py-3.5 px-4 text-slate-700">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-brand-green-light text-brand-green font-semibold text-[11px]">
-                      <FolderTree className="w-3 h-3" />
-                      {b.category?.name || "Uncategorized"}
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold shrink-0">
+                      <Clock className="w-3.5 h-3.5 text-amber-600" /> Pending
                     </span>
-                  </td>
+                  </div>
 
-                  <td className="py-3.5 px-4 text-slate-700">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-brand-blue-light text-brand-blue font-semibold text-[11px]">
-                      <MapPin className="w-3 h-3" />
-                      {b.location?.name || "Unspecified"}
-                    </span>
-                  </td>
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-semibold text-[11px]">
+                        <FolderTree className="w-3 h-3" />
+                        {b.category?.name || "Uncategorized"}
+                      </span>
 
-                  <td className="py-3.5 px-4 text-slate-600 font-mono text-[11px]">
-                    <div className="flex items-center gap-1">
-                      <Mail className="w-3 h-3 text-slate-400" />
-                      {b.owner?.email || b.email || "N/A"}
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-blue-light text-brand-blue font-semibold text-[11px]">
+                        <MapPin className="w-3 h-3" />
+                        {b.location?.name || "Unspecified"}
+                      </span>
                     </div>
-                  </td>
 
-                  <td className="py-3.5 px-4 text-slate-500 text-[11px]">
-                    {new Date(b.createdAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
+                    <span className="text-[11px] text-slate-400">
+                      Submitted {new Date(b.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </span>
+                  </div>
 
-                  <td className="py-3.5 px-4 text-center">
+                  {/* Touch-friendly Action Buttons (min 44px target) */}
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                     <button
                       onClick={() => setPreviewBusiness(b)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue text-slate-700 font-semibold rounded text-[11px] transition-colors"
+                      className="min-h-[44px] min-w-[44px] px-3.5 py-2 bg-slate-100 hover:bg-brand-blue-light hover:text-brand-blue text-slate-700 font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
                     >
-                      <Eye className="w-3.5 h-3.5" />
-                      Preview
+                      <Eye className="w-4 h-4" />
+                      <span>Preview</span>
                     </button>
-                  </td>
 
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleApprove(b.id)}
-                        disabled={actionLoadingId === b.id}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs shadow-sm transition-colors disabled:opacity-50"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Approve
-                      </button>
+                    <button
+                      onClick={() => {
+                        setRejectBusiness(b);
+                        setRejectionReason("");
+                        setRejectError(null);
+                      }}
+                      disabled={actionLoadingId === b.id}
+                      className="min-h-[44px] min-w-[44px] px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs shadow-sm transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Reject</span>
+                    </button>
 
-                      <button
-                        onClick={() => {
-                          setRejectBusiness(b);
-                          setRejectionReason("");
-                          setRejectError(null);
-                        }}
-                        disabled={actionLoadingId === b.id}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs shadow-sm transition-colors disabled:opacity-50"
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                        Reject
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    <button
+                      onClick={() => handleApprove(b.id)}
+                      disabled={actionLoadingId === b.id}
+                      className="min-h-[44px] min-w-[44px] px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs shadow-sm transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Approve</span>
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
 
       {/* Preview Modal / Drawer */}
       {previewBusiness && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-end">
-          <div className="bg-white w-full max-w-xl h-full shadow-2xl flex flex-col overflow-hidden border-l border-slate-200 animate-in slide-in-from-right duration-200">
+          <div className="bg-white w-full max-w-full sm:max-w-xl h-full shadow-2xl flex flex-col overflow-hidden border-l border-slate-200 animate-in slide-in-from-right duration-200">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-brand-card">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-brand-green" />
-                <h3 className="text-base font-bold text-brand-navy truncate max-w-xs">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-brand-card shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <Building2 className="w-5 h-5 text-brand-green shrink-0" />
+                <h3 className="text-base font-bold text-brand-navy truncate">
                   {previewBusiness.name}
                 </h3>
               </div>
               <button
                 onClick={() => setPreviewBusiness(null)}
-                className="text-slate-400 hover:text-brand-navy font-bold text-lg p-1"
+                className="text-slate-400 hover:text-brand-navy font-bold text-lg p-1 shrink-0"
               >
                 ✕
               </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 text-xs text-slate-700">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 text-xs text-slate-700">
               {/* Category & Location Badges */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="px-2.5 py-1 rounded bg-brand-green-light text-brand-green font-bold text-xs flex items-center gap-1">
@@ -337,7 +413,7 @@ export default function AdminPendingBusinessesPage() {
                   <h4 className="font-bold text-brand-navy mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide">
                     Uploaded Photos ({previewBusiness.businessPhotos.length})
                   </h4>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {previewBusiness.businessPhotos.map((photo) => (
                       <a
                         key={photo.id}
@@ -370,10 +446,10 @@ export default function AdminPendingBusinessesPage() {
               {/* Contact Information */}
               <div className="space-y-2">
                 <h4 className="font-bold text-brand-navy mb-2 text-xs uppercase tracking-wide">Contact Details</h4>
-                <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase font-bold">Owner Email</span>
-                    <span className="font-semibold text-brand-navy">{previewBusiness.owner?.email}</span>
+                    <span className="font-semibold text-brand-navy break-all">{previewBusiness.owner?.email}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase font-bold">Phone Number</span>
@@ -421,13 +497,13 @@ export default function AdminPendingBusinessesPage() {
                   </h4>
                   <div className="divide-y divide-slate-200 bg-slate-50 rounded-lg border border-slate-200">
                     {previewBusiness.businessServices.map((svc) => (
-                      <div key={svc.id} className="p-2.5 flex items-center justify-between">
+                      <div key={svc.id} className="p-2.5 flex items-center justify-between gap-2">
                         <div>
                           <p className="font-bold text-brand-navy">{svc.serviceName}</p>
                           {svc.description && <p className="text-[11px] text-slate-500">{svc.description}</p>}
                         </div>
                         {svc.price && (
-                          <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
                             ₹{svc.price}
                           </span>
                         )}
@@ -443,7 +519,7 @@ export default function AdminPendingBusinessesPage() {
                   <h4 className="font-bold text-brand-navy mb-2 text-xs uppercase tracking-wide flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5 text-slate-400" /> Business Hours
                   </h4>
-                  <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                     {previewBusiness.businessHours.map((h) => (
                       <div key={h.id} className="flex items-center justify-between text-[11px]">
                         <span className="font-semibold text-slate-700">{h.day}:</span>
@@ -462,14 +538,14 @@ export default function AdminPendingBusinessesPage() {
             </div>
 
             {/* Footer Action Buttons */}
-            <div className="p-4 border-t border-slate-200 bg-brand-card flex items-center justify-end gap-3">
+            <div className="p-4 border-t border-slate-200 bg-brand-card flex items-center justify-end gap-3 shrink-0">
               <button
                 onClick={() => {
                   setRejectBusiness(previewBusiness);
                   setRejectionReason("");
                   setRejectError(null);
                 }}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm inline-flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm inline-flex items-center gap-1.5 min-h-[44px]"
               >
                 <XCircle className="w-4 h-4" /> Reject Submission
               </button>
@@ -477,7 +553,7 @@ export default function AdminPendingBusinessesPage() {
               <button
                 onClick={() => handleApprove(previewBusiness.id)}
                 disabled={actionLoadingId === previewBusiness.id}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm inline-flex items-center gap-1.5 disabled:opacity-50"
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm inline-flex items-center gap-1.5 disabled:opacity-50 min-h-[44px]"
               >
                 <CheckCircle2 className="w-4 h-4" /> Approve Business
               </button>
@@ -491,19 +567,19 @@ export default function AdminPendingBusinessesPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-rose-50">
-              <h3 className="text-base font-bold text-rose-800 flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-rose-600" />
-                Reject Submission: {rejectBusiness.name}
+              <h3 className="text-base font-bold text-rose-800 flex items-center gap-2 truncate">
+                <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                <span className="truncate">Reject: {rejectBusiness.name}</span>
               </h3>
               <button
                 onClick={() => setRejectBusiness(null)}
-                className="text-slate-400 hover:text-brand-navy font-bold text-lg"
+                className="text-slate-400 hover:text-brand-navy font-bold text-lg p-1 shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleRejectSubmit} className="p-6 space-y-4 text-xs">
+            <form onSubmit={handleRejectSubmit} className="p-4 sm:p-6 space-y-4 text-xs">
               {rejectError && (
                 <div className="p-3 bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-medium">
                   {rejectError}
@@ -531,7 +607,7 @@ export default function AdminPendingBusinessesPage() {
                 <button
                   type="button"
                   onClick={() => setRejectBusiness(null)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors min-h-[44px]"
                 >
                   Cancel
                 </button>
@@ -539,7 +615,7 @@ export default function AdminPendingBusinessesPage() {
                 <button
                   type="submit"
                   disabled={actionLoadingId === rejectBusiness.id}
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   Confirm Rejection
                 </button>

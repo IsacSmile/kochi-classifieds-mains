@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MapPin, ShieldCheck, ChevronDown } from "lucide-react";
+import { Search, MapPin, ShieldCheck, ChevronDown, Check } from "lucide-react";
 import SearchAutocompleteDropdown, { useAutocomplete } from "./SearchAutocompleteDropdown";
 
 export interface LocationOption {
@@ -78,15 +78,23 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const locationContainerRef = useRef<HTMLDivElement>(null);
   const { suggestions, isLoading, isOpen, setIsOpen } = useAutocomplete(keyword);
 
-  // Close autocomplete dropdown on click outside
+  const selectedLocationObj = locations.find((l) => l.slug === selectedLocation);
+  const displayLocationName = selectedLocationObj ? selectedLocationObj.name : "All Locations";
+
+  // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
+      }
+      if (locationContainerRef.current && !locationContainerRef.current.contains(e.target as Node)) {
+        setLocationDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -191,22 +199,66 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
                 />
               </div>
 
-              {/* Input 2: Location Dropdown */}
-              <div className="relative flex items-center border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-2 shrink-0 sm:w-44 lg:w-48">
-                <MapPin className="w-4 h-4 text-[#1A8A2E] absolute left-3.5 sm:left-5 pointer-events-none shrink-0" />
-                <select
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full pl-9 sm:pl-11 pr-8 py-2.5 sm:py-3.5 bg-transparent text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none appearance-none cursor-pointer"
+              {/* Input 2: Custom Location Dropdown */}
+              <div ref={locationContainerRef} className="relative flex items-center border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-2 shrink-0 sm:w-44 lg:w-48">
+                <button
+                  type="button"
+                  onClick={() => setLocationDropdownOpen(!locationDropdownOpen)}
+                  className="w-full flex items-center justify-between pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3.5 bg-transparent text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none cursor-pointer group"
                 >
-                  <option value="">All Locations</option>
-                  {locations.map((loc) => (
-                    <option key={loc.id} value={loc.slug}>
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 pointer-events-none" />
+                  <MapPin className="w-4 h-4 text-[#1A8A2E] absolute left-3 sm:left-4 pointer-events-none shrink-0" />
+                  <span className="truncate text-left text-brand-navy font-bold">{displayLocationName}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
+                      locationDropdownOpen ? "rotate-180 text-brand-green" : "group-hover:text-slate-600"
+                    }`}
+                  />
+                </button>
+
+                {/* Custom Location Dropdown Menu */}
+                {locationDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto py-2 space-y-0.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedLocation("");
+                        setLocationDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center justify-between transition-colors ${
+                        selectedLocation === ""
+                          ? "bg-[#EAF7EC] text-[#1A8A2E] font-extrabold"
+                          : "text-slate-700 hover:bg-slate-50 hover:text-brand-navy"
+                      }`}
+                    >
+                      <span>All Locations</span>
+                      {selectedLocation === "" && <Check className="w-3.5 h-3.5 text-[#1A8A2E]" />}
+                    </button>
+
+                    <div className="border-t border-slate-100 my-1" />
+
+                    {locations.map((loc) => {
+                      const isSelected = selectedLocation === loc.slug;
+                      return (
+                        <button
+                          key={loc.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLocation(loc.slug);
+                            setLocationDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center justify-between transition-colors ${
+                            isSelected
+                              ? "bg-[#EAF7EC] text-[#1A8A2E] font-extrabold"
+                              : "text-slate-700 hover:bg-slate-50 hover:text-brand-navy"
+                          }`}
+                        >
+                          <span className="truncate">{loc.name}</span>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-[#1A8A2E] shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Search Button */}

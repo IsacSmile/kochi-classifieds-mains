@@ -96,7 +96,25 @@ export default async function HomePage() {
     })
   );
 
-  // Fetch Featured Approved Businesses (limit 8)
+  // Fetch Hero Showcase Featured Businesses (limit 4, ordered by showcaseOrder ASC nulls last, then createdAt DESC)
+  const heroFeaturedBusinesses = await prisma.business.findMany({
+    where: {
+      featured: true,
+      status: "approved",
+    },
+    take: 4,
+    orderBy: [
+      { showcaseOrder: { sort: "asc", nulls: "last" } },
+      { createdAt: "desc" },
+    ],
+    include: {
+      category: { select: { id: true, name: true, slug: true } },
+      location: { select: { id: true, name: true, slug: true } },
+      businessPhotos: { take: 1, orderBy: { sortOrder: "asc" } },
+    },
+  });
+
+  // Fetch Featured Approved Businesses for homepage Featured section (limit 8)
   const featuredBusinesses = await prisma.business.findMany({
     where: {
       featured: true,
@@ -117,7 +135,7 @@ export default async function HomePage() {
       <Header />
 
       {/* 2. Hero Section */}
-      <HeroSearch locations={locations} featuredBusinesses={featuredBusinesses} />
+      <HeroSearch locations={locations} featuredBusinesses={heroFeaturedBusinesses} />
 
       {/* Main Content Area */}
       <main className="flex-1 space-y-16 pb-20">

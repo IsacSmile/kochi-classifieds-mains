@@ -59,7 +59,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { status, rejectionReason, featured, verified, name, categoryId, locationId, description, address, phone, email, website } = body;
+    const { status, rejectionReason, featured, showcaseOrder, verified, name, categoryId, locationId, description, address, phone, email, website } = body;
 
     const dataToUpdate: any = {};
 
@@ -78,6 +78,14 @@ export async function PUT(
 
     if (featured !== undefined) {
       dataToUpdate.featured = Boolean(featured);
+    }
+
+    if (showcaseOrder !== undefined) {
+      if (showcaseOrder === null || showcaseOrder === "" || isNaN(Number(showcaseOrder))) {
+        dataToUpdate.showcaseOrder = null;
+      } else {
+        dataToUpdate.showcaseOrder = Number(showcaseOrder);
+      }
     }
 
     if (verified !== undefined) {

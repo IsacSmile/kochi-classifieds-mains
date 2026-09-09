@@ -102,6 +102,7 @@ model Business {
   rejectionReason String?        @map("rejection_reason") @db.Text
   verified        Boolean        @default(false)
   featured        Boolean        @default(false)
+  showcaseOrder   Int?           @map("showcase_order")
   createdAt       DateTime       @default(now()) @map("created_at")
 
   // Relations

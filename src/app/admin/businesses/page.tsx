@@ -38,6 +38,7 @@ interface BusinessItem {
   status: "pending" | "approved" | "rejected";
   rejectionReason: string | null;
   featured: boolean;
+  showcaseOrder: number | null;
   verified: boolean;
   categoryId: number;
   locationId: number;
@@ -75,6 +76,7 @@ export default function AdminAllBusinessesPage() {
     status: "approved",
     rejectionReason: "",
     featured: false,
+    showcaseOrder: "",
     verified: false,
     categoryId: "",
     locationId: "",
@@ -134,6 +136,31 @@ export default function AdminAllBusinessesPage() {
     fetchBusinesses();
   };
 
+  // Update Showcase Order
+  const handleUpdateShowcaseOrder = async (b: BusinessItem, orderVal: string) => {
+    const parsed = orderVal.trim() === "" ? null : parseInt(orderVal, 10);
+    const validParsed = parsed !== null && !isNaN(parsed) ? parsed : null;
+
+    setBusinesses((prev) =>
+      prev.map((item) => (item.id === b.id ? { ...item, showcaseOrder: validParsed } : item))
+    );
+
+    try {
+      const res = await fetch(`/api/admin/businesses/${b.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ showcaseOrder: validParsed }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update showcase order");
+      }
+    } catch (err: any) {
+      setError(err.message);
+      fetchBusinesses();
+    }
+  };
+
   // Toggle Featured status instantaneously
   const handleToggleFeatured = async (b: BusinessItem) => {
     const newFeaturedState = !b.featured;
@@ -168,6 +195,7 @@ export default function AdminAllBusinessesPage() {
       status: b.status,
       rejectionReason: b.rejectionReason || "",
       featured: b.featured,
+      showcaseOrder: b.showcaseOrder !== null && b.showcaseOrder !== undefined ? String(b.showcaseOrder) : "",
       verified: b.verified,
       categoryId: String(b.categoryId),
       locationId: String(b.locationId),
@@ -186,11 +214,13 @@ export default function AdminAllBusinessesPage() {
     setError(null);
 
     try {
+      const parsedOrder = editFormData.showcaseOrder.trim() === "" ? null : parseInt(editFormData.showcaseOrder, 10);
       const payload = {
         name: editFormData.name,
         status: editFormData.status,
         rejectionReason: editFormData.status === "rejected" ? editFormData.rejectionReason : null,
         featured: editFormData.featured,
+        showcaseOrder: editFormData.featured && parsedOrder !== null && !isNaN(parsedOrder) ? parsedOrder : null,
         verified: editFormData.verified,
         categoryId: Number(editFormData.categoryId),
         locationId: Number(editFormData.locationId),
@@ -408,18 +438,38 @@ export default function AdminAllBusinessesPage() {
                   </td>
 
                   <td className="py-3.5 px-4 text-center">
-                    <button
-                      onClick={() => handleToggleFeatured(b)}
-                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
-                        b.featured
-                          ? "bg-amber-100 text-amber-800 border border-amber-300 shadow-sm"
-                          : "bg-slate-100 text-slate-400 hover:text-slate-600 border border-slate-200"
-                      }`}
-                      title="Click to toggle featured status"
-                    >
-                      <Star className={`w-3.5 h-3.5 ${b.featured ? "fill-amber-500 text-amber-500" : ""}`} />
-                      {b.featured ? "Featured" : "Standard"}
-                    </button>
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => handleToggleFeatured(b)}
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                          b.featured
+                            ? "bg-amber-100 text-amber-800 border border-amber-300 shadow-sm"
+                            : "bg-slate-100 text-slate-400 hover:text-slate-600 border border-slate-200"
+                        }`}
+                        title="Click to toggle featured status"
+                      >
+                        <Star className={`w-3.5 h-3.5 ${b.featured ? "fill-amber-500 text-amber-500" : ""}`} />
+                        {b.featured ? "Featured" : "Standard"}
+                      </button>
+
+                      {b.featured && (
+                        <div
+                          className="flex items-center gap-1 bg-amber-50 border border-amber-300 rounded-lg px-2 py-0.5"
+                          title="Showcase Order (1-4 for hero grid)"
+                        >
+                          <span className="text-[10px] font-bold text-amber-800 shrink-0">Order:</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="99"
+                            value={b.showcaseOrder ?? ""}
+                            onChange={(e) => handleUpdateShowcaseOrder(b, e.target.value)}
+                            placeholder="#"
+                            className="w-10 px-1 py-0.5 text-center text-xs font-bold bg-white border border-amber-300 rounded text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </td>
 
                   <td className="py-3.5 px-4 text-right">
@@ -578,6 +628,23 @@ export default function AdminAllBusinessesPage() {
                   </label>
                 </div>
               </div>
+
+              {editFormData.featured && (
+                <div>
+                  <label className="block font-bold text-amber-800 mb-1">
+                    Showcase Order (1-4 for hero showcase grid)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="99"
+                    placeholder="e.g. 1 (Leave empty for default sorting)"
+                    value={editFormData.showcaseOrder}
+                    onChange={(e) => setEditFormData({ ...editFormData, showcaseOrder: e.target.value })}
+                    className="w-full px-3 py-2 border border-amber-300 bg-amber-50/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs font-bold text-amber-900"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block font-bold text-brand-navy mb-1">Address</label>

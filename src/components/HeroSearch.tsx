@@ -94,23 +94,18 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
     router.push(`/search?q=${encodeURIComponent(filterText)}`);
   };
 
-  // Build 4 hero cards using DB featured businesses if available, else fall back to DEFAULT_HERO_CARDS
-  const dbCards: CardData[] = featuredBusinesses
-    .filter((biz) => biz.businessPhotos && biz.businessPhotos.length > 0 && biz.businessPhotos[0]?.imageUrl)
-    .map((biz) => ({
-      id: biz.id,
-      name: biz.name,
-      categoryName: biz.category?.name ? biz.category.name.toUpperCase() : "FEATURED",
-      locationName: biz.location?.name ? `${biz.location.name}, Kochi` : "Kochi",
-      imageUrl: biz.businessPhotos![0].imageUrl,
-      slug: biz.slug,
-    }));
-
-  const heroCards: CardData[] = [...dbCards];
-  for (const fallbackCard of DEFAULT_HERO_CARDS) {
-    if (heroCards.length >= 4) break;
-    heroCards.push(fallbackCard);
-  }
+  // Build hero cards directly from DB featured businesses (limit 4)
+  const heroCards: CardData[] = featuredBusinesses.map((biz, idx) => ({
+    id: biz.id,
+    name: biz.name,
+    categoryName: biz.category?.name ? biz.category.name.toUpperCase() : "FEATURED",
+    locationName: biz.location?.name ? `${biz.location.name}, Kochi` : "Kochi",
+    imageUrl:
+      biz.businessPhotos && biz.businessPhotos.length > 0 && biz.businessPhotos[0]?.imageUrl
+        ? biz.businessPhotos[0].imageUrl
+        : DEFAULT_HERO_CARDS[idx % DEFAULT_HERO_CARDS.length].imageUrl,
+    slug: biz.slug,
+  }));
 
   // Format locations list for subheading
   const locationListText =
@@ -130,7 +125,7 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
     <section className="bg-white text-slate-800 pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
         {/* LEFT COLUMN */}
-        <div className="lg:col-span-7 space-y-6 sm:space-y-7">
+        <div className={heroCards.length > 0 ? "lg:col-span-7 space-y-6 sm:space-y-7" : "lg:col-span-12 space-y-6 sm:space-y-7 max-w-3xl mx-auto"}>
           {/* 1. Small pill badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF7EC] text-[#1A8A2E] border border-[#1A8A2E]/20 text-[11px] sm:text-xs font-extrabold tracking-wide uppercase shadow-2xs">
             <ShieldCheck className="w-4 h-4 text-[#1A8A2E] stroke-[2.5]" />
@@ -209,30 +204,67 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
           </div>
         </div>
 
-        {/* RIGHT COLUMN - 2x2 IMAGE GRID */}
-        <div className="lg:col-span-5 mt-4 lg:mt-0">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-            {/* Column 1 of Grid (Cards 1 & 3) */}
-            <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-              {[heroCards[0], heroCards[2]].filter(Boolean).map((card) => (
-                <CardItem key={card.id} card={card} router={router} />
-              ))}
-            </div>
+        {/* RIGHT COLUMN - FEATURED SHOWCASE GRID */}
+        {heroCards.length > 0 && (
+          <div className="lg:col-span-5 mt-4 lg:mt-0">
+            {heroCards.length === 1 && (
+              <div className="max-w-sm mx-auto lg:mx-0">
+                <CardItem card={heroCards[0]} router={router} heightClass="h-56 sm:h-64 lg:h-72" />
+              </div>
+            )}
 
-            {/* Column 2 of Grid (Cards 2 & 4) with vertical offset on desktop */}
-            <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
-              {[heroCards[1], heroCards[3]].filter(Boolean).map((card) => (
-                <CardItem key={card.id} card={card} router={router} />
-              ))}
-            </div>
+            {heroCards.length === 2 && (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+                <CardItem card={heroCards[0]} router={router} heightClass="h-48 sm:h-56 lg:h-64" />
+                <CardItem card={heroCards[1]} router={router} heightClass="h-48 sm:h-56 lg:h-64" />
+              </div>
+            )}
+
+            {heroCards.length === 3 && (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+                <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                  <CardItem card={heroCards[0]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                  <CardItem card={heroCards[2]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                </div>
+                <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
+                  <CardItem card={heroCards[1]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                </div>
+              </div>
+            )}
+
+            {heroCards.length >= 4 && (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+                {/* Column 1 of Grid (Cards 1 & 3) */}
+                <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                  {[heroCards[0], heroCards[2]].filter(Boolean).map((card) => (
+                    <CardItem key={card.id} card={card} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                  ))}
+                </div>
+
+                {/* Column 2 of Grid (Cards 2 & 4) with vertical offset on desktop */}
+                <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
+                  {[heroCards[1], heroCards[3]].filter(Boolean).map((card) => (
+                    <CardItem key={card.id} card={card} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
 }
 
-function CardItem({ card, router }: { card: CardData; router: any }) {
+function CardItem({
+  card,
+  router,
+  heightClass = "h-44 sm:h-52 lg:h-60",
+}: {
+  card: CardData;
+  router: any;
+  heightClass?: string;
+}) {
   const handleClick = () => {
     if (card.slug) {
       router.push(`/business/${card.slug}`);
@@ -244,7 +276,7 @@ function CardItem({ card, router }: { card: CardData; router: any }) {
   return (
     <div
       onClick={handleClick}
-      className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-44 sm:h-52 lg:h-60 border border-slate-100 cursor-pointer"
+      className={`group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${heightClass} border border-slate-100 cursor-pointer`}
     >
       <img
         src={card.imageUrl}

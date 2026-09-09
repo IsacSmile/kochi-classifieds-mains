@@ -31,6 +31,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Header from "@/components/Header";
+import CustomSelect from "@/components/CustomSelect";
 
 interface Category {
   id: number;
@@ -393,54 +394,97 @@ export default function AddBusinessPage() {
 
   if (submittedResult && currentStep === 8) {
     return (
-      <div className="min-h-screen bg-white text-brand-navy p-6 sm:p-12 flex items-center justify-center">
-        <div className="max-w-xl w-full bg-brand-card border border-slate-200 rounded-2xl p-8 sm:p-10 shadow-sm text-center space-y-6">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
-            <CheckCircle2 className="w-10 h-10" />
+      <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 sm:p-8 flex items-center justify-center">
+        <div className="max-w-lg w-full bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-200">
+          {/* Animated Success Badge */}
+          <div className="relative mx-auto w-20 h-20">
+            <div className="absolute inset-0 bg-emerald-400/20 rounded-full animate-ping" />
+            <div className="relative w-20 h-20 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-full flex items-center justify-center text-white shadow-md">
+              <CheckCircle2 className="w-10 h-10 stroke-[2.5]" />
+            </div>
           </div>
 
+          {/* Heading & Status Banner */}
           <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              Status: Pending Review
-            </span>
-            <h1 className="text-2xl font-bold text-brand-navy">
-              Business Submission Successful!
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-800 border border-amber-200/80 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>Status: Pending Review</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Business Submitted!
             </h1>
-            <p className="text-xs text-slate-600">
-              Thank you for listing <strong className="text-brand-navy">{submittedResult.name}</strong> on KochiClassifieds.in.
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-medium">
+              Thank you for registering <strong className="text-slate-900 font-extrabold">{submittedResult.name}</strong> on KochiClassifieds.in.
             </p>
           </div>
 
-          <div className="p-4 bg-white rounded-xl border border-slate-200 text-left text-xs space-y-2">
-            <div className="flex justify-between border-b border-slate-100 pb-2">
-              <span className="text-slate-500">Listing ID:</span>
-              <span className="font-mono font-bold text-brand-navy">#{submittedResult.businessId}</span>
-            </div>
-            <div className="flex justify-between border-b border-slate-100 pb-2">
-              <span className="text-slate-500">Business Name:</span>
-              <span className="font-bold text-brand-navy">{submittedResult.name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Account Status:</span>
-              <span className="font-bold text-brand-green flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Upgraded to Business Owner
+          {/* Listing Details Card */}
+          <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 text-left text-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-200/70 pb-2.5">
+              <span className="text-slate-500 font-semibold">Listing ID:</span>
+              <span className="font-mono font-extrabold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                #{submittedResult.businessId}
               </span>
+            </div>
+
+            <div className="flex items-center justify-between border-b border-slate-200/70 pb-2.5">
+              <span className="text-slate-500 font-semibold">Business Name:</span>
+              <span className="font-extrabold text-slate-900 truncate max-w-[200px]">
+                {submittedResult.name}
+              </span>
+            </div>
+
+            <div className="pt-0.5">
+              <div className="p-2.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-emerald-800 text-[11px] font-bold flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Account Status: Upgraded to Business Owner</span>
+              </div>
             </div>
           </div>
 
-          <p className="text-xs text-slate-500">
-            Our admin team will review your business information shortly. Once approved, your listing will be published publicly across Kochi directories.
-          </p>
+          {/* Timeline Process Explainer */}
+          <div className="space-y-3 text-left bg-slate-50/60 p-4 rounded-2xl border border-slate-200/60">
+            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">What Happens Next?</h3>
+            <div className="space-y-2.5 text-xs text-slate-600 font-medium">
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <strong className="text-slate-900 block">1. Form Submitted</strong>
+                  <span className="text-[11px] text-slate-500">Your details are safely stored in our system.</span>
+                </div>
+              </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</div>
+                <div>
+                  <strong className="text-slate-900 block">2. Admin Verification</strong>
+                  <span className="text-[11px] text-slate-500">Our Kochi admin team verifies details (usually within 24 hours).</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</div>
+                <div>
+                  <strong className="text-slate-900 block">3. Live Directory Listing</strong>
+                  <span className="text-[11px] text-slate-500">Once approved, customers can find & contact your business!</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-2.5 pt-2">
             <Link
-              href="/dashboard"
-              className="w-full sm:w-auto px-6 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-lg transition-colors shadow-sm text-center"
+              href="/my-businesses"
+              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-[0.99] text-white text-xs sm:text-sm font-extrabold rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
-              Go to Owner Dashboard
+              <span>Go to My Business Listings</span>
+              <ChevronRight className="w-4 h-4" />
             </Link>
+
             <button
+              type="button"
               onClick={() => {
                 setSubmittedResult(null);
                 setCurrentStep(1);
@@ -460,9 +504,10 @@ export default function AddBusinessPage() {
                 setLogoUrl("");
                 setPhotoUrls([]);
               }}
-              className="w-full sm:w-auto px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors text-center"
+              className="w-full py-3 bg-slate-100 hover:bg-slate-200 active:scale-[0.99] text-slate-700 text-xs sm:text-sm font-bold rounded-2xl transition-all border border-slate-200/80 flex items-center justify-center gap-2 cursor-pointer"
             >
-              Add Another Business
+              <Plus className="w-4 h-4 text-brand-green" />
+              <span>Add Another Business</span>
             </button>
           </div>
         </div>
@@ -518,8 +563,64 @@ export default function AddBusinessPage() {
         </div>
 
         {/* Progress Stepper Bar */}
-        <div className="bg-brand-card p-4 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-          <div className="flex items-center justify-between min-w-[640px]">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          {/* Mobile Stepper Header (< sm) */}
+          <div className="block sm:hidden space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <span className="flex items-center gap-1.5 text-brand-green">
+                <span className="w-6 h-6 rounded-full bg-brand-green text-white flex items-center justify-center text-[10px] font-extrabold">
+                  {currentStep}
+                </span>
+                <span>Step {currentStep} of 7: <strong className="text-slate-900">{STEPS_NAV[currentStep - 1]?.label}</strong></span>
+              </span>
+              <span className="text-slate-500 font-extrabold">{Math.round((currentStep / 7) * 100)}%</span>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-300 rounded-full"
+                style={{ width: `${(currentStep / 7) * 100}%` }}
+              />
+            </div>
+
+            {/* Scrollable Step Chips on Mobile */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              {STEPS_NAV.map((step) => {
+                const IconComp = step.icon;
+                const isActive = currentStep === step.id;
+                const isCompleted = currentStep > step.id;
+
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => {
+                      if (step.id < currentStep) setCurrentStep(step.id);
+                    }}
+                    disabled={step.id > currentStep}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0 transition-all ${
+                      isActive
+                        ? "bg-brand-navy text-white shadow-xs"
+                        : isCompleted
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-slate-100 text-slate-400 border border-slate-200/60"
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    ) : (
+                      <IconComp className="w-3.5 h-3.5 shrink-0" />
+                    )}
+                    <span className="whitespace-nowrap">{step.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop Stepper Bar (>= sm) */}
+          <div className="hidden sm:flex items-center justify-between gap-3">
             {STEPS_NAV.map((step) => {
               const IconComp = step.icon;
               const isActive = currentStep === step.id;
@@ -528,6 +629,7 @@ export default function AddBusinessPage() {
               return (
                 <button
                   key={step.id}
+                  type="button"
                   onClick={() => {
                     if (step.id < currentStep) setCurrentStep(step.id);
                   }}
@@ -539,10 +641,10 @@ export default function AddBusinessPage() {
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all ${
                       isCompleted
-                        ? "bg-brand-green text-white"
+                        ? "bg-brand-green text-white shadow-xs"
                         : isActive
-                        ? "bg-brand-navy text-white ring-4 ring-brand-navy/10"
-                        : "bg-white text-slate-400 border border-slate-300"
+                        ? "bg-brand-navy text-white ring-4 ring-brand-navy/10 shadow-xs"
+                        : "bg-slate-100 text-slate-400 border border-slate-200"
                     }`}
                   >
                     {isCompleted ? (
@@ -552,9 +654,9 @@ export default function AddBusinessPage() {
                     )}
                   </div>
                   <span
-                    className={`text-[11px] font-semibold text-center whitespace-nowrap ${
+                    className={`text-[11px] font-bold text-center whitespace-nowrap tracking-tight ${
                       isActive
-                        ? "text-brand-navy font-bold"
+                        ? "text-brand-navy font-extrabold"
                         : isCompleted
                         ? "text-brand-green"
                         : "text-slate-400"
@@ -613,23 +715,19 @@ export default function AddBusinessPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">
-                    Primary Category <span className="text-rose-600">*</span>
-                  </label>
-                  <select
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs font-medium"
-                  >
-                    <option value="">-- Select Category --</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <CustomSelect
+                  label="Primary Category"
+                  required
+                  value={categoryId}
+                  onChange={(val) => setCategoryId(val)}
+                  placeholder="-- Select Category --"
+                  icon={<FolderTree className="w-4 h-4" />}
+                  options={categories.map((cat) => ({
+                    value: String(cat.id),
+                    label: cat.name,
+                  }))}
+                  searchable
+                />
               </div>
             </div>
           )}
@@ -756,23 +854,19 @@ export default function AddBusinessPage() {
               </div>
 
               <div className="space-y-4 text-xs">
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">
-                    Location Area <span className="text-rose-600">*</span>
-                  </label>
-                  <select
-                    value={locationId}
-                    onChange={(e) => setLocationId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs font-medium"
-                  >
-                    <option value="">-- Select Location --</option>
-                    {locations.map((loc) => (
-                      <option key={loc.id} value={loc.id}>
-                        {loc.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <CustomSelect
+                  label="Location Area"
+                  required
+                  value={locationId}
+                  onChange={(val) => setLocationId(val)}
+                  placeholder="-- Select Location --"
+                  icon={<MapPin className="w-4 h-4" />}
+                  options={locations.map((loc) => ({
+                    value: String(loc.id),
+                    label: loc.name,
+                  }))}
+                  searchable
+                />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -1018,7 +1112,7 @@ export default function AddBusinessPage() {
                   <label className="block font-bold text-brand-navy">
                     Business Logo
                   </label>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     {logoUrl ? (
                       <div className="relative group w-20 h-20 border border-slate-200 rounded-lg overflow-hidden shrink-0">
                         <img
@@ -1040,17 +1134,17 @@ export default function AddBusinessPage() {
                       </div>
                     )}
 
-                    <div>
-                      <label className="inline-flex items-center gap-2 px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-lg cursor-pointer transition-colors shadow-sm">
+                    <div className="w-full sm:w-auto">
+                      <label className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-xl cursor-pointer transition-colors shadow-xs">
                         {uploadingLogo ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Uploading Logo...
+                            <span>Uploading Logo...</span>
                           </>
                         ) : (
                           <>
                             <UploadCloud className="w-3.5 h-3.5" />
-                            Choose Logo File
+                            <span>Choose Logo File</span>
                           </>
                         )}
                         <input
@@ -1070,27 +1164,27 @@ export default function AddBusinessPage() {
 
                 {/* Gallery Photos Section */}
                 <div className="p-4 bg-white border border-slate-200 rounded-xl space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
                       <label className="block font-bold text-brand-navy">
                         Gallery Showcase Photos
                       </label>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
                         Upload up to 8 photos showcasing your storefront, products, or team ({photoUrls.length}/8 uploaded)
                       </p>
                     </div>
 
                     {photoUrls.length < 8 && (
-                      <label className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg cursor-pointer transition-colors">
+                      <label className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition-colors shrink-0 border border-slate-200/80">
                         {uploadingPhoto ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Uploading...
+                            <span>Uploading...</span>
                           </>
                         ) : (
                           <>
                             <Plus className="w-3.5 h-3.5" />
-                            Add Photos
+                            <span>Add Photos</span>
                           </>
                         )}
                         <input
@@ -1284,27 +1378,27 @@ export default function AddBusinessPage() {
           )}
 
           {/* Wizard Controls Footer */}
-          <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between pt-6 border-t border-slate-200 gap-3">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 border border-slate-200/80 active:scale-[0.99]"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Previous Step
+                <span>Previous Step</span>
               </button>
             ) : (
-              <div></div>
+              <div className="hidden sm:block"></div>
             )}
 
             {currentStep < 7 ? (
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+                className="w-full sm:w-auto px-7 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.99]"
               >
-                Next Step
+                <span>Next Step</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
@@ -1312,17 +1406,17 @@ export default function AddBusinessPage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="px-8 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+                className="w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 active:scale-[0.99]"
               >
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Submitting Business Listing...
+                    <span>Submitting Business Listing...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    Submit Business for Approval
+                    <span>Submit Business for Approval</span>
                   </>
                 )}
               </button>

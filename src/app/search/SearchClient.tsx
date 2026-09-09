@@ -20,6 +20,7 @@ import {
   Stethoscope,
   Utensils,
   Wrench,
+  CornerDownRight,
 } from "lucide-react";
 import SearchAutocompleteDropdown, { useAutocomplete } from "@/components/SearchAutocompleteDropdown";
 
@@ -32,6 +33,7 @@ export interface CategoryFilterItem {
 
 export interface LocationFilterItem {
   id: number;
+  parentId?: number | null;
   name: string;
   slug: string;
   count: number;
@@ -417,25 +419,31 @@ export default function SearchClient({
                 <MapPin className="w-3.5 h-3.5 text-brand-blue" /> Locations
               </h3>
               <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1 text-xs text-slate-600">
-                {initialLocations.map((loc) => (
-                  <label
-                    key={loc.id}
-                    className="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <input
-                        type="checkbox"
-                        checked={currentLocation === loc.slug}
-                        onChange={() => handleLocationToggle(loc.slug)}
-                        className="w-4 h-4 rounded text-brand-blue focus:ring-brand-blue border-slate-300"
-                      />
-                      <span className="truncate">{loc.name}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">
-                      {loc.count}
-                    </span>
-                  </label>
-                ))}
+                {initialLocations.map((loc) => {
+                  const isSub = Boolean(loc.parentId);
+                  return (
+                    <label
+                      key={loc.id}
+                      className={`flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors ${
+                        isSub ? "ml-3 text-slate-600 font-normal" : "font-bold text-brand-navy"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        {isSub && <CornerDownRight className="w-3 h-3 text-slate-400 shrink-0" />}
+                        <input
+                          type="checkbox"
+                          checked={currentLocation === loc.slug}
+                          onChange={() => handleLocationToggle(loc.slug)}
+                          className="w-4 h-4 rounded text-brand-blue focus:ring-brand-blue border-slate-300"
+                        />
+                        <span className="truncate">{loc.name}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
+                        {loc.count}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -697,20 +705,29 @@ export default function SearchClient({
               <div className="space-y-2 border-t border-slate-100 pt-4">
                 <h3 className="text-xs font-bold text-slate-700 uppercase">Locations</h3>
                 <div className="space-y-1 max-h-48 overflow-y-auto text-xs text-slate-600">
-                  {initialLocations.map((loc) => (
-                    <label key={loc.id} className="flex items-center justify-between p-1 rounded">
-                      <div className="flex items-center gap-2 truncate">
-                        <input
-                          type="checkbox"
-                          checked={currentLocation === loc.slug}
-                          onChange={() => handleLocationToggle(loc.slug)}
-                          className="w-4 h-4 rounded border-slate-300 text-brand-blue"
-                        />
-                        <span className="truncate">{loc.name}</span>
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-bold">{loc.count}</span>
-                    </label>
-                  ))}
+                  {initialLocations.map((loc) => {
+                    const isSub = Boolean(loc.parentId);
+                    return (
+                      <label
+                        key={loc.id}
+                        className={`flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors ${
+                          isSub ? "ml-3 text-slate-600 font-normal" : "font-bold text-brand-navy"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          {isSub && <CornerDownRight className="w-3 h-3 text-slate-400 shrink-0" />}
+                          <input
+                            type="checkbox"
+                            checked={currentLocation === loc.slug}
+                            onChange={() => handleLocationToggle(loc.slug)}
+                            className="w-4 h-4 rounded border-slate-300 text-brand-blue"
+                          />
+                          <span className="truncate">{loc.name}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-bold shrink-0">{loc.count}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </div>

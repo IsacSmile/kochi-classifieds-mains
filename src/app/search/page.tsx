@@ -21,7 +21,7 @@ export default async function SearchPage() {
   });
 
   const categoriesWithCounts = await Promise.all(
-    categories.map(async (cat) => {
+    categories.map(async (cat: any) => {
       const count = await prisma.business.count({
         where: {
           status: "approved",
@@ -37,14 +37,14 @@ export default async function SearchPage() {
     })
   );
 
-  // Fetch top-level locations with business count
+  // Fetch all active locations with business count and parent structure
   const locations = await prisma.location.findMany({
-    where: { parentId: null, status: "active" },
-    orderBy: { sortOrder: "asc" },
+    where: { status: "active" },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
 
   const locationsWithCounts = await Promise.all(
-    locations.map(async (loc) => {
+    locations.map(async (loc: any) => {
       const count = await prisma.business.count({
         where: {
           status: "approved",
@@ -53,6 +53,7 @@ export default async function SearchPage() {
       });
       return {
         id: loc.id,
+        parentId: loc.parentId,
         name: loc.name,
         slug: loc.slug,
         count,
@@ -60,21 +61,46 @@ export default async function SearchPage() {
     })
   );
 
+  // Structure locations hierarchically (Parent first, then children)
+  const structuredLocations: Array<{
+    id: number;
+    parentId?: number | null;
+    name: string;
+    slug: string;
+    count: number;
+  }> = [];
+
+  const parentLocations = locationsWithCounts.filter((l: any) => !l.parentId);
+  parentLocations.forEach((parent: any) => {
+    structuredLocations.push(parent);
+    const children = locationsWithCounts.filter((l: any) => l.parentId === parent.id);
+    children.forEach((child: any) => {
+      structuredLocations.push(child);
+    });
+  });
+
+  const addedIds = new Set(structuredLocations.map((l: any) => l.id));
+  locationsWithCounts.forEach((l: any) => {
+    if (!addedIds.has(l.id)) {
+      structuredLocations.push(l);
+    }
+  });
+
   // Select 3 suggested categories for empty state
-  const suggestedCategories = categories.slice(0, 3).map((cat) => ({
+  const suggestedCategories = categories.slice(0, 3).map((cat: any) => ({
     id: cat.id,
     name: cat.name,
     slug: cat.slug,
   }));
 
   // Categories & Locations for Footer component
-  const footerCategories = categories.map((c) => ({
+  const footerCategories = categories.map((c: any) => ({
     id: c.id,
     name: c.name,
     slug: c.slug,
   }));
 
-  const footerLocations = locations.map((l) => ({
+  const footerLocations = locations.map((l: any) => ({
     id: l.id,
     name: l.name,
     slug: l.slug,
@@ -94,7 +120,7 @@ export default async function SearchPage() {
         >
           <SearchClient
             initialCategories={categoriesWithCounts}
-            initialLocations={locationsWithCounts}
+            initialLocations={structuredLocations}
             suggestedCategories={suggestedCategories}
           />
         </Suspense>

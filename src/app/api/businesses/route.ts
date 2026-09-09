@@ -124,7 +124,8 @@ export async function GET(request: Request) {
         include: {
           category: { select: { id: true, name: true, slug: true } },
           location: { select: { id: true, name: true, slug: true } },
-          businessPhotos: { orderBy: { sortOrder: "asc" } },
+          businessPhotos: { take: 3, orderBy: { sortOrder: "asc" } },
+          businessHours: true,
         },
       }),
     ]);
@@ -213,7 +214,7 @@ export async function POST(req: Request) {
     const fullAddress = [street, area, pincode].filter(Boolean).map((s) => s.trim()).join(", ");
 
     // Execute Prisma transaction
-    const newBusiness = await prisma.$transaction(async (tx) => {
+    const newBusiness = await prisma.$transaction(async (tx: any) => {
       // 1. Create Business row
       const business = await tx.business.create({
         data: {

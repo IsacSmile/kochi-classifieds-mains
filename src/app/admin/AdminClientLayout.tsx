@@ -44,12 +44,13 @@ export default function AdminClientLayout({
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-white">
           <Link
             href="/admin/categories"
-            className="flex items-center gap-2.5 font-bold text-brand-navy text-lg tracking-tight"
+            className="flex items-center shrink-0 py-1"
           >
-            <div className="w-8 h-8 rounded-lg bg-brand-green text-white flex items-center justify-center font-black text-sm">
-              KC
-            </div>
-            <span>KochiClassifieds</span>
+            <img
+              src="/logo.png"
+              alt="KochiClassifieds.in"
+              className="h-10 w-auto object-contain"
+            />
           </Link>
         </div>
 

@@ -133,11 +133,12 @@ export default function MyBusinessesPage() {
       {/* Header Bar */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-brand-navy text-lg tracking-tight">
-            <div className="w-8 h-8 rounded-lg bg-brand-green text-white flex items-center justify-center font-black text-sm">
-              KC
-            </div>
-            <span>KochiClassifieds</span>
+          <Link href="/" className="flex items-center shrink-0 py-1">
+            <img
+              src="/logo.png"
+              alt="KochiClassifieds.in"
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
           <div className="flex items-center gap-4 text-xs">

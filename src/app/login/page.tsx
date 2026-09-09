@@ -126,11 +126,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white text-brand-navy flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
-        <Link href="/" className="inline-flex items-center gap-2 text-2xl font-black text-brand-navy">
-          <div className="w-9 h-9 rounded-lg bg-brand-green text-white flex items-center justify-center font-black text-base">
-            KC
-          </div>
-          <span>KochiClassifieds</span>
+        <Link href="/" className="inline-flex items-center justify-center py-1">
+          <img
+            src="/logo.png"
+            alt="KochiClassifieds.in"
+            className="h-12 w-auto object-contain"
+          />
         </Link>
         <h2 className="text-2xl font-bold tracking-tight text-brand-navy">
           Sign in to your account

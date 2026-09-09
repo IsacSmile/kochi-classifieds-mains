@@ -40,11 +40,12 @@ export default function Header() {
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 font-bold text-brand-navy text-xl tracking-tight shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-brand-green text-white flex items-center justify-center font-black text-base shadow-sm">
-            KC
-          </div>
-          <span className="hidden sm:inline font-extrabold text-brand-navy">Kochi<span className="text-brand-green">Classifieds</span></span>
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 py-1">
+          <img
+            src="/logo.png"
+            alt="KochiClassifieds.in"
+            className="h-10 sm:h-12 w-auto object-contain"
+          />
         </Link>
 
         {/* Compact Quick Search Bar (Hidden on Mobile) */}

@@ -26,13 +26,12 @@ export default function Footer({ categories, locations }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Info (2 Columns) */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 font-bold text-white text-xl tracking-tight">
-              <div className="w-9 h-9 rounded-xl bg-brand-green text-white flex items-center justify-center font-black text-base shadow-sm">
-                KC
-              </div>
-              <span className="font-extrabold text-white">
-                Kochi<span className="text-emerald-400">Classifieds</span>
-              </span>
+            <Link href="/" className="inline-block p-2 bg-white rounded-xl shadow-sm">
+              <img
+                src="/logo.png"
+                alt="KochiClassifieds.in"
+                className="h-10 sm:h-12 w-auto object-contain"
+              />
             </Link>
 
             <p className="text-slate-300 text-xs leading-relaxed max-w-sm">

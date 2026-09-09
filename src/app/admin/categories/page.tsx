@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, GripVertical, CornerDownRight, FolderTree, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import CustomAdminSelect from "@/components/CustomAdminSelect";
 
 interface Category {
   id: number;
@@ -411,25 +412,18 @@ export default function AdminCategoriesPage() {
                 </span>
               </div>
 
-              <div>
-                <label className="block font-bold text-brand-navy mb-1">
-                  Parent Category (Nesting)
-                </label>
-                <select
-                  value={formData.parentId}
-                  onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                >
-                  <option value="">-- Top Level Category (No Parent) --</option>
-                  {categories
+              <CustomAdminSelect
+                label="Parent Category (Nesting)"
+                value={formData.parentId}
+                onChange={(val) => setFormData({ ...formData, parentId: val })}
+                options={[
+                  { value: "", label: "-- Top Level Category (No Parent) --" },
+                  ...categories
                     .filter((c) => !c.parentId && c.id !== editingCategory?.id)
-                    .map((parentCat) => (
-                      <option key={parentCat.id} value={parentCat.id}>
-                        {parentCat.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
+                    .map((parentCat) => ({ value: String(parentCat.id), label: parentCat.name })),
+                ]}
+                searchable
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -444,19 +438,15 @@ export default function AdminCategoriesPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
+                <CustomAdminSelect
+                  label="Status"
+                  value={formData.status}
+                  onChange={(val) => setFormData({ ...formData, status: val })}
+                  options={[
+                    { value: "active", label: "Active" },
+                    { value: "inactive", label: "Inactive" },
+                  ]}
+                />
               </div>
 
               <div>

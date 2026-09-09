@@ -125,7 +125,7 @@ export default async function HomePage() {
       <Header />
 
       {/* 2. Hero Section */}
-      <HeroSearch locations={locationsWithCounts} featuredBusinesses={heroFeaturedBusinesses} />
+      <HeroSearch locations={locationsWithCounts} categories={categories} featuredBusinesses={heroFeaturedBusinesses} />
 
       {/* Main Content Area */}
       <main className="flex-1 space-y-16 pb-20">

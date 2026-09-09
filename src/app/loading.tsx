@@ -1,11 +1,20 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CategoryCardSkeleton, BusinessCardSkeleton, LocationCardSkeleton } from "@/components/Skeletons";
+import {
+  HeroSectionSkeleton,
+  CategoryCardSkeleton,
+  BusinessCardSkeleton,
+  LocationCardSkeleton,
+} from "@/components/Skeletons";
 
 export default function HomepageLoading() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
       <Header />
+      
+      {/* Hero Section Skeleton (Left Search + Right 2x2 Showcase Grid) */}
+      <HeroSectionSkeleton />
+
       <main className="flex-1 space-y-16 pb-20">
         {/* Popular Categories Section Skeleton */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-12">

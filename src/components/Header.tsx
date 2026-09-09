@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   Search,
-  PlusCircle,
+  Plus,
   LogOut,
   LayoutDashboard,
   Building2,
@@ -72,7 +72,7 @@ export default function Header() {
         </Link>
 
         {/* Compact Quick Search Bar (Hidden on Mobile) */}
-        <div ref={headerSearchRef} className="hidden md:block flex-1 max-w-sm relative">
+        <div ref={headerSearchRef} className="hidden md:block flex-1 max-w-sm relative mx-2">
           <form
             onSubmit={handleHeaderSearch}
             className="flex items-center relative"
@@ -103,25 +103,23 @@ export default function Header() {
           />
         </div>
 
-        {/* Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">
+        {/* Right Header Actions */}
+        <div className="flex items-center gap-2.5">
+          {/* Browse Categories Link */}
           <Link
             href="/#popular-categories"
-            className="hover:text-brand-navy transition-colors flex items-center gap-1.5"
+            className="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[#000B4D] hover:text-[#1A8A2E] hover:bg-slate-100/80 font-bold text-xs transition-all"
           >
-            <FolderTree className="w-4 h-4 text-brand-blue" />
-            Browse Categories
+            <FolderTree className="w-4 h-4 text-[#1A8A2E]" />
+            <span>Browse Categories</span>
           </Link>
-        </div>
 
-        {/* Right Header Actions */}
-        <div className="flex items-center gap-3">
           {/* Add Your Business CTA Button (Desktop/Tablet) */}
           <Link
             href="/add-business"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-green hover:bg-brand-green-hover text-white font-bold text-xs transition-colors shadow-xs"
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-green hover:bg-brand-green-hover text-white font-semibold text-xs sm:text-sm transition-colors shadow-2xs"
           >
-            <PlusCircle className="w-4 h-4" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Your Business</span>
           </Link>
 
@@ -275,9 +273,9 @@ export default function Header() {
           <Link
             href="/#popular-categories"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 hover:text-brand-navy transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl hover:bg-slate-100/80 text-xs font-bold text-[#000B4D] hover:text-[#1A8A2E] transition-colors"
           >
-            <FolderTree className="w-4 h-4 text-brand-blue" />
+            <FolderTree className="w-4 h-4 text-[#1A8A2E]" />
             <span>Browse Categories</span>
           </Link>
         </div>
@@ -287,9 +285,9 @@ export default function Header() {
           <Link
             href="/add-business"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-brand-green hover:bg-brand-green-hover text-white font-bold text-xs transition-colors shadow-xs"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-brand-green hover:bg-brand-green-hover text-white font-semibold text-xs sm:text-sm transition-colors shadow-2xs"
           >
-            <PlusCircle className="w-4 h-4" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Your Business</span>
           </Link>
         </div>

@@ -66,3 +66,77 @@ export function LocationCardSkeleton() {
     </div>
   );
 }
+
+// 4. HeroCardSkeleton: Matches 2x2 showcase cards in hero section
+export function HeroCardSkeleton({ heightClass = "h-44 sm:h-52 lg:h-60" }: { heightClass?: string }) {
+  return (
+    <div
+      className={`relative rounded-2xl overflow-hidden bg-slate-200 animate-pulse ${heightClass} border border-slate-200 flex flex-col justify-between p-3.5 sm:p-4`}
+    >
+      {/* Top Floating Logo Badge Skeleton */}
+      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-300/80" />
+
+      {/* Bottom Text Lines Skeleton */}
+      <div className="space-y-2">
+        <div className="h-3 w-20 bg-slate-300/90 rounded" />
+        <div className="h-4.5 w-32 bg-slate-300/90 rounded" />
+        <div className="h-3 w-24 bg-slate-300/80 rounded" />
+      </div>
+    </div>
+  );
+}
+
+// 5. HeroSectionSkeleton: Matches full homepage hero section (Left Search + Right 2x2 Showcase Grid)
+export function HeroSectionSkeleton() {
+  return (
+    <section className="bg-white text-slate-800 pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        {/* LEFT COLUMN */}
+        <div className="lg:col-span-7 space-y-6 sm:space-y-7">
+          {/* Badge Skeleton */}
+          <div className="h-7 w-56 bg-slate-200 rounded-full animate-pulse" />
+
+          {/* Heading Skeleton */}
+          <div className="space-y-3">
+            <div className="h-10 sm:h-12 w-4/5 bg-slate-200 rounded-xl animate-pulse" />
+            <div className="h-10 sm:h-12 w-3/5 bg-slate-200 rounded-xl animate-pulse" />
+          </div>
+
+          {/* Subheading Skeleton */}
+          <div className="space-y-2 max-w-xl">
+            <div className="h-4 w-full bg-slate-200 rounded animate-pulse" />
+            <div className="h-4 w-4/5 bg-slate-200 rounded animate-pulse" />
+          </div>
+
+          {/* Search Bar Skeleton */}
+          <div className="h-14 sm:h-16 w-full max-w-2xl bg-slate-200 rounded-2xl sm:rounded-full animate-pulse" />
+
+          {/* Quick Filters Skeleton */}
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
+            <div className="h-4 w-24 bg-slate-200 rounded animate-pulse mr-1" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-7 w-28 bg-slate-200 rounded-full animate-pulse" />
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN - 2x2 SHOWCASE GRID SKELETON */}
+        <div className="lg:col-span-5 mt-4 lg:mt-0">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+            {/* Column 1 of Grid */}
+            <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+              <HeroCardSkeleton />
+              <HeroCardSkeleton />
+            </div>
+
+            {/* Column 2 of Grid with desktop offset */}
+            <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
+              <HeroCardSkeleton />
+              <HeroCardSkeleton />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

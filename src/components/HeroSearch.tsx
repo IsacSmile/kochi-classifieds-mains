@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, ShieldCheck, ChevronDown, Check } from "lucide-react";
 import SearchAutocompleteDropdown, { useAutocomplete } from "./SearchAutocompleteDropdown";
+import { HeroCardSkeleton } from "./Skeletons";
 
 export interface LocationOption {
   id: number;
@@ -30,6 +31,7 @@ export interface BusinessProp {
 interface HeroSearchProps {
   locations: LocationOption[];
   featuredBusinesses?: BusinessProp[];
+  categories?: { id: number; name: string; slug: string }[];
 }
 
 interface CardData {
@@ -78,7 +80,7 @@ const DEFAULT_HERO_CARDS: CardData[] = [
   },
 ];
 
-export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroSearchProps) {
+export default function HeroSearch({ locations, featuredBusinesses = [], categories = [] }: HeroSearchProps) {
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -162,13 +164,22 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
       ? locations.slice(0, 4).map((l) => l.name).join(", ")
       : "Kakkanad, Edappally, Vyttila, Fort Kochi";
 
-  // Quick filters list
-  const quickFilters = [
-    { label: "Salons Kakkanad", query: "Salons Kakkanad" },
-    { label: "Roofing Vyttila", query: "Roofing Vyttila" },
-    { label: "Real Estate Edappally", query: "Real Estate Edappally" },
-    { label: "Fort Kochi Cafes", query: "Fort Kochi Cafes" },
-  ];
+  // Dynamic quick filters derived from real categories and locations
+  const quickFilters =
+    categories && categories.length > 0 && locations && locations.length > 0
+      ? categories.slice(0, 4).map((cat, idx) => {
+          const loc = locations[idx % locations.length];
+          return {
+            label: `${cat.name} ${loc.name}`,
+            query: `${cat.name} ${loc.name}`,
+          };
+        })
+      : [
+          { label: "Salons Kakkanad", query: "Salons Kakkanad" },
+          { label: "Roofing Vyttila", query: "Roofing Vyttila" },
+          { label: "Real Estate Edappally", query: "Real Estate Edappally" },
+          { label: "Fort Kochi Cafes", query: "Fort Kochi Cafes" },
+        ];
 
   return (
     <section className="bg-white text-slate-800 pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
@@ -316,52 +327,65 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
         </div>
 
         {/* RIGHT COLUMN - FEATURED SHOWCASE GRID */}
-        {heroCards.length > 0 && (
-          <div className="lg:col-span-5 mt-4 lg:mt-0">
-            {heroCards.length === 1 && (
-              <div className="max-w-sm mx-auto lg:mx-0">
-                <CardItem card={heroCards[0]} router={router} heightClass="h-56 sm:h-64 lg:h-72" />
+        <div className="lg:col-span-5 mt-4 lg:mt-0">
+          {heroCards.length === 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+              <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                <HeroCardSkeleton />
+                <HeroCardSkeleton />
               </div>
-            )}
-
-            {heroCards.length === 2 && (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-                <CardItem card={heroCards[0]} router={router} heightClass="h-48 sm:h-56 lg:h-64" />
-                <CardItem card={heroCards[1]} router={router} heightClass="h-48 sm:h-56 lg:h-64" />
+              <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
+                <HeroCardSkeleton />
+                <HeroCardSkeleton />
               </div>
-            )}
+            </div>
+          ) : (
+            <>
+              {heroCards.length === 1 && (
+                <div className="max-w-sm mx-auto lg:mx-0">
+                  <CardItem card={heroCards[0]} router={router} heightClass="h-56 sm:h-64 lg:h-72" />
+                </div>
+              )}
 
-            {heroCards.length === 3 && (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-                <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-                  <CardItem card={heroCards[0]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
-                  <CardItem card={heroCards[2]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+              {heroCards.length === 2 && (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+                  <CardItem card={heroCards[0]} router={router} heightClass="h-48 sm:h-56 lg:h-64" />
+                  <CardItem card={heroCards[1]} router={router} heightClass="h-48 sm:h-56 lg:h-64" />
                 </div>
-                <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
-                  <CardItem card={heroCards[1]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
-                </div>
-              </div>
-            )}
+              )}
 
-            {heroCards.length >= 4 && (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-                {/* Column 1 of Grid (Cards 1 & 3) */}
-                <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-                  {[heroCards[0], heroCards[2]].filter(Boolean).map((card) => (
-                    <CardItem key={card.id} card={card} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
-                  ))}
+              {heroCards.length === 3 && (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+                  <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                    <CardItem card={heroCards[0]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                    <CardItem card={heroCards[2]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                  </div>
+                  <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
+                    <CardItem card={heroCards[1]} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                  </div>
                 </div>
+              )}
 
-                {/* Column 2 of Grid (Cards 2 & 4) with vertical offset on desktop */}
-                <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
-                  {[heroCards[1], heroCards[3]].filter(Boolean).map((card) => (
-                    <CardItem key={card.id} card={card} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
-                  ))}
+              {heroCards.length >= 4 && (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+                  {/* Column 1 of Grid (Cards 1 & 3) */}
+                  <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+                    {[heroCards[0], heroCards[2]].filter(Boolean).map((card) => (
+                      <CardItem key={card.id} card={card} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                    ))}
+                  </div>
+
+                  {/* Column 2 of Grid (Cards 2 & 4) with vertical offset on desktop */}
+                  <div className="space-y-3 sm:space-y-4 lg:space-y-5 lg:pt-8">
+                    {[heroCards[1], heroCards[3]].filter(Boolean).map((card) => (
+                      <CardItem key={card.id} card={card} router={router} heightClass="h-44 sm:h-52 lg:h-60" />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

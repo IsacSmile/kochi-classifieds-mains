@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, GripVertical, CornerDownRight, MapPin, RefreshCw, CheckCircle2, XCircle, Navigation } from "lucide-react";
+import CustomAdminSelect from "@/components/CustomAdminSelect";
 
 interface LocationItem {
   id: number;
@@ -417,25 +418,18 @@ export default function AdminLocationsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-brand-navy mb-1">
-                  Parent Location (Sub-locality Nesting)
-                </label>
-                <select
-                  value={formData.parentId}
-                  onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                >
-                  <option value="">-- Primary Location / City (No Parent) --</option>
-                  {locations
+              <CustomAdminSelect
+                label="Parent Location (Sub-locality Nesting)"
+                value={formData.parentId}
+                onChange={(val) => setFormData({ ...formData, parentId: val })}
+                options={[
+                  { value: "", label: "-- Primary Location / City (No Parent) --" },
+                  ...locations
                     .filter((l) => !l.parentId && l.id !== editingLocation?.id)
-                    .map((parentLoc) => (
-                      <option key={parentLoc.id} value={parentLoc.id}>
-                        {parentLoc.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
+                    .map((parentLoc) => ({ value: String(parentLoc.id), label: parentLoc.name })),
+                ]}
+                searchable
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -480,19 +474,15 @@ export default function AdminLocationsPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
+                <CustomAdminSelect
+                  label="Status"
+                  value={formData.status}
+                  onChange={(val) => setFormData({ ...formData, status: val })}
+                  options={[
+                    { value: "active", label: "Active" },
+                    { value: "inactive", label: "Inactive" },
+                  ]}
+                />
               </div>
 
               <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">

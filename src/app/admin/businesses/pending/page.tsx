@@ -191,7 +191,7 @@ export default function AdminPendingBusinessesPage() {
       )}
 
       {/* Pending Businesses Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
         {loading ? (
           <div className="p-12 text-center text-slate-500 text-sm flex flex-col items-center gap-2">
             <RefreshCw className="w-6 h-6 animate-spin text-brand-green" />

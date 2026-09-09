@@ -55,18 +55,29 @@ export default function Footer({ categories = [], locations = [] }: FooterProps)
               <FolderTree className="w-4 h-4 text-[#1A8A2E]" />
               Categories
             </h3>
-            <ul className="space-y-2 text-xs text-slate-600 font-medium">
-              {categories.slice(0, 7).map((cat) => (
-                <li key={cat.id}>
-                  <Link
-                    href={`/search?category=${cat.slug}`}
-                    className="hover:text-[#1A8A2E] transition-colors"
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {categories && categories.length > 0 ? (
+              <ul className="space-y-2 text-xs text-slate-600 font-medium">
+                {categories.slice(0, 7).map((cat) => (
+                  <li key={cat.id}>
+                    <Link
+                      href={`/search?category=${cat.slug}`}
+                      className="hover:text-[#1A8A2E] transition-colors"
+                    >
+                      {cat.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="space-y-2.5 pt-1 animate-pulse">
+                <div className="h-3 bg-slate-200 rounded-md w-28" />
+                <div className="h-3 bg-slate-200 rounded-md w-24" />
+                <div className="h-3 bg-slate-200 rounded-md w-32" />
+                <div className="h-3 bg-slate-200 rounded-md w-20" />
+                <div className="h-3 bg-slate-200 rounded-md w-28" />
+                <div className="h-3 bg-slate-200 rounded-md w-24" />
+              </div>
+            )}
           </div>
 
           {/* Top Locations */}
@@ -75,18 +86,29 @@ export default function Footer({ categories = [], locations = [] }: FooterProps)
               <MapPin className="w-4 h-4 text-brand-blue" />
               Top Locations
             </h3>
-            <ul className="space-y-2 text-xs text-slate-600 font-medium">
-              {locations.slice(0, 7).map((loc) => (
-                <li key={loc.id}>
-                  <Link
-                    href={`/search?location=${loc.slug}`}
-                    className="hover:text-[#1A8A2E] transition-colors"
-                  >
-                    {loc.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {locations && locations.length > 0 ? (
+              <ul className="space-y-2 text-xs text-slate-600 font-medium">
+                {locations.slice(0, 7).map((loc) => (
+                  <li key={loc.id}>
+                    <Link
+                      href={`/search?location=${loc.slug}`}
+                      className="hover:text-[#1A8A2E] transition-colors"
+                    >
+                      {loc.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="space-y-2.5 pt-1 animate-pulse">
+                <div className="h-3 bg-slate-200 rounded-md w-24" />
+                <div className="h-3 bg-slate-200 rounded-md w-28" />
+                <div className="h-3 bg-slate-200 rounded-md w-20" />
+                <div className="h-3 bg-slate-200 rounded-md w-32" />
+                <div className="h-3 bg-slate-200 rounded-md w-24" />
+                <div className="h-3 bg-slate-200 rounded-md w-28" />
+              </div>
+            )}
           </div>
 
           {/* Quick Links */}

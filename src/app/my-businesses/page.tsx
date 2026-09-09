@@ -191,143 +191,153 @@ export default function MyBusinessesPage() {
           </div>
         ) : (
           /* Business Listings Grid / Cards */
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {businesses.map((biz) => {
               const coverPhoto = biz.businessPhotos?.[0]?.imageUrl || null;
 
               return (
                 <div
                   key={biz.id}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:border-slate-300 transition-all flex flex-col md:flex-row"
+                  className="bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all overflow-hidden p-4 sm:p-5 flex flex-col md:flex-row gap-4 md:gap-6"
                 >
-                  {/* Photo Thumbnail */}
-                  <div className="md:w-48 h-40 md:h-auto bg-slate-100/90 shrink-0 relative overflow-hidden flex items-center justify-center p-3 border-b md:border-b-0 md:border-r border-slate-100">
+                  {/* Photo Thumbnail / Logo Container */}
+                  <div className="w-full md:w-48 h-40 sm:h-44 md:h-auto bg-slate-50/90 rounded-2xl border border-slate-200/70 shrink-0 relative overflow-hidden flex items-center justify-center p-4">
                     {coverPhoto ? (
                       <img
                         src={coverPhoto}
                         alt={biz.name}
-                        className="w-full h-full object-contain max-h-32 rounded-lg"
+                        className="w-full h-full object-contain max-h-36 rounded-xl"
                       />
                     ) : (
-                      <div className="w-full h-full bg-brand-green-light text-brand-green flex flex-col items-center justify-center p-4 rounded-lg">
-                        <Building2 className="w-10 h-10 text-brand-green mb-1" />
+                      <div className="w-full h-full bg-brand-green-light text-brand-green flex flex-col items-center justify-center p-4 rounded-xl">
+                        <Building2 className="w-9 h-9 text-brand-green mb-1" />
                         <span className="text-[10px] font-bold text-slate-400">No Photo</span>
                       </div>
                     )}
 
-                    {/* Featured / Verified Badge */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      {biz.verified && (
-                        <span className="p-1 rounded-full bg-emerald-600 text-white shadow" title="Verified Listing">
+                    {/* Verified Badge */}
+                    {biz.verified && (
+                      <div className="absolute top-2.5 left-2.5">
+                        <span className="p-1 rounded-full bg-emerald-600 text-white shadow-xs block" title="Verified Listing">
                           <ShieldCheck className="w-3.5 h-3.5" />
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Listing Content Details */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      {/* Category & Location Badges + Date */}
-                      <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green font-bold text-[11px] border border-brand-green/20">
-                            <FolderTree className="w-3 h-3" />
+                  <div className="flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-3">
+                      {/* Top Badges & Status Row */}
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        {/* Category & Location */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200/60">
+                            <FolderTree className="w-3 h-3 text-emerald-600" />
                             {biz.category?.name || "Category"}
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-blue-light text-brand-blue font-bold text-[11px] border border-brand-blue/20">
-                            <MapPin className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold text-[11px] border border-sky-200/60">
+                            <MapPin className="w-3 h-3 text-sky-600" />
                             {biz.location?.name || "Kochi"}
                           </span>
                         </div>
 
-                        <div className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          Submitted {formatDate(biz.createdAt)}
-                        </div>
-                      </div>
-
-                      {/* Business Title & Link */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          {biz.status === "approved" ? (
-                            <Link
-                              href={`/business/${biz.slug}`}
-                              className="text-lg font-bold text-brand-navy hover:text-brand-green transition-colors inline-flex items-center gap-1.5"
-                            >
-                              <span>{biz.name}</span>
-                              <ExternalLink className="w-4 h-4 text-brand-blue" />
-                            </Link>
-                          ) : (
-                            <h2 className="text-lg font-bold text-brand-navy">
-                              {biz.name}
-                            </h2>
-                          )}
-                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mt-1">
-                            {biz.address || "Kochi, Kerala"}
-                          </p>
-                        </div>
-
                         {/* Status Badge */}
-                        <div className="shrink-0">
+                        <div>
                           {biz.status === "approved" && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs border border-emerald-300 shadow-2xs">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-[11px] border border-emerald-200 shadow-2xs whitespace-nowrap">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                               Approved
                             </span>
                           )}
 
                           {biz.status === "pending" && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs border border-amber-300 shadow-2xs">
-                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 font-extrabold text-[11px] border border-amber-200 shadow-2xs whitespace-nowrap">
+                              <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                               Pending Approval
                             </span>
                           )}
 
                           {biz.status === "rejected" && (
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-100 text-rose-800 font-extrabold text-xs border border-rose-300 shadow-2xs">
-                              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-700 font-extrabold text-[11px] border border-rose-200 shadow-2xs whitespace-nowrap">
+                              <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                               Rejected
                             </span>
                           )}
                         </div>
                       </div>
 
+                      {/* Business Title & Address */}
+                      <div className="space-y-1">
+                        {biz.status === "approved" ? (
+                          <Link
+                            href={`/business/${biz.slug}`}
+                            className="text-lg font-extrabold text-slate-900 hover:text-brand-green transition-colors inline-flex items-center gap-1.5 tracking-tight group"
+                          >
+                            <span>{biz.name}</span>
+                            <ExternalLink className="w-4 h-4 text-brand-blue shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                          </Link>
+                        ) : (
+                          <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                            {biz.name}
+                          </h2>
+                        )}
+
+                        <p className="text-xs text-slate-500 font-medium flex items-start gap-1 leading-relaxed">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                          <span>{biz.address || "Kochi, Kerala"}</span>
+                        </p>
+                      </div>
+
+                      {/* Submitted Date */}
+                      <div className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span>Submitted {formatDate(biz.createdAt)}</span>
+                      </div>
+
                       {/* Rejection Reason Feedback Banner */}
                       {biz.status === "rejected" && (
-                        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
+                        <div className="p-3 bg-rose-50/80 border border-rose-200 rounded-2xl text-xs text-rose-800 space-y-1">
                           <span className="font-bold flex items-center gap-1 text-rose-900">
-                            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                            <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                             Reason for Rejection:
                           </span>
-                          <p className="pl-4 leading-relaxed font-medium">
+                          <p className="pl-4 leading-relaxed font-medium text-rose-700">
                             {biz.rejectionReason || "No explicit reason specified by admin."}
                           </p>
                         </div>
                       )}
                     </div>
 
-                    {/* Actions Bar */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-3">
-                      <div className="flex items-center gap-2">
-                        {biz.status === "approved" && (
+                    {/* Action Buttons Grid */}
+                    <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {biz.status === "approved" ? (
+                        <>
                           <Link
                             href={`/business/${biz.slug}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold transition-colors"
+                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold transition-all text-xs whitespace-nowrap shadow-xs active:scale-[0.99]"
                           >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            View Public Page
+                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                            <span>View Public Page</span>
                           </Link>
-                        )}
-                      </div>
 
-                      <button
-                        onClick={() => setPreviewBusiness(biz)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-brand-blue" />
-                        Preview Submission
-                      </button>
+                          <button
+                            onClick={() => setPreviewBusiness(biz)}
+                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all text-xs whitespace-nowrap border border-slate-200/80 active:scale-[0.99]"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-brand-blue shrink-0" />
+                            <span>Preview Submission</span>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setPreviewBusiness(biz)}
+                          className="col-span-full w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all text-xs whitespace-nowrap border border-slate-200/80 active:scale-[0.99]"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-brand-blue shrink-0" />
+                          <span>Preview Submission</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -339,16 +349,16 @@ export default function MyBusinessesPage() {
 
       {/* Submission Preview Modal */}
       {previewBusiness && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full my-8 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full my-4 sm:my-8 overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[90vh]">
             {/* Modal Header */}
-            <div className="p-5 bg-brand-card border-b border-slate-200 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-brand-green-light text-brand-green flex items-center justify-center font-bold">
+            <div className="p-4 sm:p-5 bg-brand-card border-b border-slate-200 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <div className="w-8 h-8 rounded-lg bg-brand-green-light text-brand-green flex items-center justify-center font-bold shrink-0">
                   <Building2 className="w-4 h-4" />
                 </div>
-                <div>
-                  <h2 className="text-base font-bold text-brand-navy truncate max-w-sm">
+                <div className="overflow-hidden">
+                  <h2 className="text-sm sm:text-base font-bold text-brand-navy truncate">
                     {previewBusiness.name}
                   </h2>
                   <p className="text-[11px] text-slate-500">
@@ -359,38 +369,38 @@ export default function MyBusinessesPage() {
 
               <button
                 onClick={() => setPreviewBusiness(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-brand-navy hover:bg-white transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-brand-navy hover:bg-white transition-colors shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-6 overflow-y-auto space-y-6 text-xs">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6 text-xs">
               {/* Status Header inside Modal */}
-              <div className="p-4 rounded-xl border flex items-center justify-between gap-3 bg-slate-50 border-slate-200">
+              <div className="p-3.5 sm:p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 border-slate-200">
                 <div className="space-y-1">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Approval Status</span>
-                  <div className="font-bold text-sm text-brand-navy flex items-center gap-1.5">
+                  <div className="font-bold text-xs sm:text-sm text-brand-navy flex items-center gap-1.5">
                     {previewBusiness.status === "approved" && (
                       <span className="text-emerald-700 flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Approved & Published
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Approved & Published
                       </span>
                     )}
                     {previewBusiness.status === "pending" && (
                       <span className="text-amber-700 flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-amber-600" /> Pending Admin Review
+                        <Clock className="w-4 h-4 text-amber-600 shrink-0" /> Pending Admin Review
                       </span>
                     )}
                     {previewBusiness.status === "rejected" && (
                       <span className="text-rose-700 flex items-center gap-1">
-                        <XCircle className="w-4 h-4 text-rose-600" /> Listing Rejected
+                        <XCircle className="w-4 h-4 text-rose-600 shrink-0" /> Listing Rejected
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="text-right">
+                <div className="sm:text-right">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Submission Date</span>
                   <span className="font-bold text-slate-700">{formatDate(previewBusiness.createdAt)}</span>
                 </div>
@@ -400,14 +410,14 @@ export default function MyBusinessesPage() {
               {previewBusiness.status === "rejected" && previewBusiness.rejectionReason && (
                 <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 space-y-1">
                   <span className="font-bold flex items-center gap-1 text-rose-900 text-xs">
-                    <AlertCircle className="w-4 h-4 text-rose-600" /> Admin Rejection Reason:
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /> Admin Rejection Reason:
                   </span>
                   <p className="leading-relaxed font-medium pl-5">{previewBusiness.rejectionReason}</p>
                 </div>
               )}
 
               {/* Category & Location */}
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-100">
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase block mb-0.5">Category</span>
                   <span className="font-bold text-brand-navy text-xs">{previewBusiness.category?.name}</span>
@@ -435,19 +445,19 @@ export default function MyBusinessesPage() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-slate-400" />
+                    <Phone className="w-4 h-4 text-slate-400 shrink-0" />
                     <span>Phone: <strong>{previewBusiness.phone || "N/A"}</strong></span>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-emerald-600" />
+                    <MessageSquare className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>WhatsApp: <strong>{previewBusiness.whatsapp || "N/A"}</strong></span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-slate-400" />
-                    <span>Email: <strong>{previewBusiness.email || "N/A"}</strong></span>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2 overflow-hidden">
+                    <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span className="truncate">Email: <strong>{previewBusiness.email || "N/A"}</strong></span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-slate-400" />
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2 overflow-hidden">
+                    <Globe className="w-4 h-4 text-slate-400 shrink-0" />
                     <span className="truncate">Website: <strong>{previewBusiness.website || "N/A"}</strong></span>
                   </div>
                 </div>
@@ -459,9 +469,9 @@ export default function MyBusinessesPage() {
                   <h3 className="font-bold text-brand-navy uppercase text-[11px] flex items-center gap-1.5">
                     <ImageIcon className="w-4 h-4 text-brand-blue" /> Uploaded Photos ({previewBusiness.businessPhotos.length})
                   </h3>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {previewBusiness.businessPhotos.map((photo) => (
-                      <div key={photo.id} className="h-24 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                      <div key={photo.id} className="h-24 sm:h-28 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
                         <img
                           src={photo.imageUrl}
                           alt={photo.altText || previewBusiness.name}
@@ -487,7 +497,7 @@ export default function MyBusinessesPage() {
                           {svc.description && <p className="text-[11px] text-slate-500">{svc.description}</p>}
                         </div>
                         {svc.price && (
-                          <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                          <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0 ml-2">
                             ₹{String(svc.price)}
                           </span>
                         )}
@@ -499,17 +509,17 @@ export default function MyBusinessesPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+            <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shrink-0">
               {previewBusiness.status === "approved" ? (
                 <Link
                   href={`/business/${previewBusiness.slug}`}
-                  className="px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center justify-center gap-1.5 text-center"
                 >
                   <ExternalLink className="w-4 h-4" />
                   View Live Public Page
                 </Link>
               ) : (
-                <div className="text-[11px] text-slate-500 font-medium">
+                <div className="text-[11px] text-slate-500 font-medium text-center sm:text-left">
                   {previewBusiness.status === "pending"
                     ? "Your listing will become publicly visible once approved by an admin."
                     : "Listing rejected. Please address feedback before re-submitting."}
@@ -518,7 +528,7 @@ export default function MyBusinessesPage() {
 
               <button
                 onClick={() => setPreviewBusiness(null)}
-                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-colors text-center"
               >
                 Close Preview
               </button>

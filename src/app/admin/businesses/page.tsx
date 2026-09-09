@@ -20,6 +20,7 @@ import {
   Navigation,
   FileText,
 } from "lucide-react";
+import CustomAdminSelect from "@/components/CustomAdminSelect";
 
 interface Category {
   id: number;
@@ -290,55 +291,43 @@ export default function AdminAllBusinessesPage() {
           Filter Businesses
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+        <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end">
           {/* Status Filter */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Status</label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-green"
-            >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
+          <CustomAdminSelect
+            label="Status"
+            value={selectedStatus}
+            onChange={(val) => setSelectedStatus(val)}
+            options={[
+              { value: "all", label: "All Statuses" },
+              { value: "pending", label: "Pending" },
+              { value: "approved", label: "Approved" },
+              { value: "rejected", label: "Rejected" },
+            ]}
+          />
 
           {/* Category Filter */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Category</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-green"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CustomAdminSelect
+            label="Category"
+            value={selectedCategory}
+            onChange={(val) => setSelectedCategory(val)}
+            options={[
+              { value: "all", label: "All Categories" },
+              ...categories.map((cat) => ({ value: String(cat.id), label: cat.name })),
+            ]}
+            searchable
+          />
 
           {/* Location Filter */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Location</label>
-            <select
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-green"
-            >
-              <option value="all">All Locations</option>
-              {locations.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CustomAdminSelect
+            label="Location"
+            value={selectedLocation}
+            onChange={(val) => setSelectedLocation(val)}
+            options={[
+              { value: "all", label: "All Locations" },
+              ...locations.map((loc) => ({ value: String(loc.id), label: loc.name })),
+            ]}
+            searchable
+          />
 
           {/* Search Query */}
           <div>
@@ -363,7 +352,7 @@ export default function AdminAllBusinessesPage() {
       </div>
 
       {/* Businesses Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
         {loading ? (
           <div className="p-12 text-center text-slate-500 text-sm flex flex-col items-center gap-2">
             <RefreshCw className="w-6 h-6 animate-spin text-brand-green" />
@@ -519,18 +508,16 @@ export default function AdminAllBusinessesPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">Approval Status</label>
-                  <select
-                    value={editFormData.status}
-                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
+                <CustomAdminSelect
+                  label="Approval Status"
+                  value={editFormData.status}
+                  onChange={(val) => setEditFormData({ ...editFormData, status: val })}
+                  options={[
+                    { value: "pending", label: "Pending" },
+                    { value: "approved", label: "Approved" },
+                    { value: "rejected", label: "Rejected" },
+                  ]}
+                />
               </div>
 
               {/* Rejection Reason field if status is rejected */}
@@ -548,35 +535,21 @@ export default function AdminAllBusinessesPage() {
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">Category</label>
-                  <select
-                    value={editFormData.categoryId}
-                    onChange={(e) => setEditFormData({ ...editFormData, categoryId: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <CustomAdminSelect
+                  label="Category"
+                  value={editFormData.categoryId}
+                  onChange={(val) => setEditFormData({ ...editFormData, categoryId: val })}
+                  options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
+                  searchable
+                />
 
-                <div>
-                  <label className="block font-bold text-brand-navy mb-1">Location</label>
-                  <select
-                    value={editFormData.locationId}
-                    onChange={(e) => setEditFormData({ ...editFormData, locationId: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
-                  >
-                    {locations.map((l) => (
-                      <option key={l.id} value={l.id}>
-                        {l.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <CustomAdminSelect
+                  label="Location"
+                  value={editFormData.locationId}
+                  onChange={(val) => setEditFormData({ ...editFormData, locationId: val })}
+                  options={locations.map((l) => ({ value: String(l.id), label: l.name }))}
+                  searchable
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

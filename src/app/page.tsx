@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
 import Footer from "@/components/Footer";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import {
   FolderTree,
   MapPin,
@@ -13,14 +14,6 @@ import {
   ArrowRight,
   Sparkles,
   PlusCircle,
-  Stethoscope,
-  Utensils,
-  Wrench,
-  GraduationCap,
-  ShoppingBag,
-  Car,
-  Home,
-  Laptop,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -41,20 +34,6 @@ export const metadata: Metadata = {
 
 export const revalidate = 60; // Revalidate page every 60 seconds
 
-// Helper to select an icon based on category name/slug
-function getCategoryIcon(name: string) {
-  const lower = name.toLowerCase();
-  if (lower.includes("health") || lower.includes("doctor") || lower.includes("hospital")) return Stethoscope;
-  if (lower.includes("food") || lower.includes("restaurant") || lower.includes("cafe")) return Utensils;
-  if (lower.includes("service") || lower.includes("repair") || lower.includes("plumb")) return Wrench;
-  if (lower.includes("education") || lower.includes("school") || lower.includes("college")) return GraduationCap;
-  if (lower.includes("shop") || lower.includes("retail") || lower.includes("fashion")) return ShoppingBag;
-  if (lower.includes("auto") || lower.includes("car") || lower.includes("vehicle")) return Car;
-  if (lower.includes("real estate") || lower.includes("property") || lower.includes("home")) return Home;
-  if (lower.includes("tech") || lower.includes("computer") || lower.includes("it")) return Laptop;
-  return FolderTree;
-}
-
 export default async function HomePage() {
   // Fetch top-level categories
   const categories = await prisma.category.findMany({
@@ -65,7 +44,7 @@ export default async function HomePage() {
 
   // Count approved businesses per category
   const categoriesWithCounts = await Promise.all(
-    categories.map(async (cat) => {
+    categories.map(async (cat: any) => {
       const count = await prisma.business.count({
         where: {
           status: "approved",
@@ -85,7 +64,7 @@ export default async function HomePage() {
 
   // Count approved businesses per location
   const locationsWithCounts = await Promise.all(
-    locations.map(async (loc) => {
+    locations.map(async (loc: any) => {
       const count = await prisma.business.count({
         where: {
           status: "approved",
@@ -141,48 +120,53 @@ export default async function HomePage() {
       <main className="flex-1 space-y-16 pb-20">
         {/* 3. Popular Categories Grid */}
         <section id="popular-categories" className="max-w-7xl mx-auto px-4 sm:px-6 pt-12">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8 border-b border-slate-200 pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8 border-b border-slate-200/80 pb-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-light text-brand-green font-bold text-xs mb-2">
-                <FolderTree className="w-3.5 h-3.5" />
-                <span>Explore Directory</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-navy tracking-tight">
-                Popular Categories in Kochi
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Explore Local Businesses
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Find top-rated services and products across major business categories
+                Find the services you need, right here in Kochi.
               </p>
             </div>
 
             <Link
               href="/search"
-              className="text-xs font-bold text-brand-blue hover:text-brand-navy flex items-center gap-1 group transition-colors"
+              className="text-xs sm:text-sm font-bold text-[#1A8A2E] hover:text-emerald-700 flex items-center gap-1 group transition-colors"
             >
               <span>View All Categories</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {categoriesWithCounts.map((cat) => {
-              const IconComp = getCategoryIcon(cat.name);
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {categoriesWithCounts.map((cat: any) => {
               return (
                 <Link
                   key={cat.id}
                   href={`/search?category=${cat.slug}`}
-                  className="group bg-white p-5 rounded-2xl border border-slate-200 hover:border-brand-green hover:shadow-lg transition-all flex flex-col items-center text-center space-y-3"
+                  className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-brand-green hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-brand-green-light text-brand-green flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                    <IconComp className="w-6 h-6 text-brand-green" />
+                  {/* Top Row: Icon + Count Pill */}
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-brand-green-light group-hover:text-brand-green transition-all shadow-2xs">
+                      <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-6 h-6" />
+                    </div>
+
+                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 font-medium text-[11px] whitespace-nowrap">
+                      {cat.businessCount} {cat.businessCount === 1 ? "business" : "businesses"}
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-brand-navy text-xs sm:text-sm group-hover:text-brand-green transition-colors line-clamp-1">
+
+                  {/* Bottom Text Block */}
+                  <div className="space-y-1 text-left">
+                    <h3 className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-brand-green transition-colors line-clamp-1">
                       {cat.name}
                     </h3>
-                    <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
-                      {cat.businessCount} {cat.businessCount === 1 ? "Listing" : "Listings"}
-                    </p>
+                    <div className="inline-flex items-center gap-1 text-xs font-bold text-[#1A8A2E] group-hover:translate-x-1 transition-transform">
+                      <span>Explore listings</span>
+                      <span>→</span>
+                    </div>
                   </div>
                 </Link>
               );
@@ -218,7 +202,7 @@ export default async function HomePage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {featuredBusinesses.map((biz) => {
+                {featuredBusinesses.map((biz: any) => {
                   const photoUrl = biz.businessPhotos?.[0]?.imageUrl || null;
 
                   return (
@@ -313,7 +297,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {locationsWithCounts.map((loc) => (
+            {locationsWithCounts.map((loc: any) => (
               <Link
                 key={loc.id}
                 href={`/search?location=${loc.slug}`}

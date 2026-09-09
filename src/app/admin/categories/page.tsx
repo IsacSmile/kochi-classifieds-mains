@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, GripVertical, CornerDownRight, FolderTree, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 
 interface Category {
   id: number;
@@ -290,11 +291,9 @@ export default function AdminCategoriesPage() {
                   <td className="py-3 px-4 font-bold text-brand-navy">
                     <div className="flex items-center gap-2" style={{ paddingLeft: `${cat.level * 24}px` }}>
                       {cat.level > 0 && <CornerDownRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-                      {cat.iconUrl && (
-                        <span className="w-5 h-5 rounded bg-brand-green-light flex items-center justify-center text-xs">
-                          {cat.iconUrl}
-                        </span>
-                      )}
+                      <span className="w-6 h-6 rounded bg-brand-green-light flex items-center justify-center shrink-0">
+                        <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-3.5 h-3.5 text-brand-green" />
+                      </span>
                       <span>{cat.name}</span>
                     </div>
                   </td>
@@ -462,15 +461,18 @@ export default function AdminCategoriesPage() {
 
               <div>
                 <label className="block font-bold text-brand-navy mb-1">
-                  Icon URL / Emoji
+                  Lucide Icon Name / Icon URL
                 </label>
                 <input
                   type="text"
                   value={formData.iconUrl}
                   onChange={(e) => setFormData({ ...formData, iconUrl: e.target.value })}
-                  placeholder="e.g. 🍽️ or https://example.com/icon.svg"
+                  placeholder="e.g. UtensilsCrossed, Hotel, Stethoscope, GraduationCap, Home, Car..."
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green text-xs"
                 />
+                <span className="text-[11px] text-slate-500 mt-0.5 block">
+                  Enter a Lucide React icon name (e.g., UtensilsCrossed, Hotel, Stethoscope, GraduationCap, Home, Car, Sparkles, ShoppingBag, Briefcase, PartyPopper, Wrench, LayoutGrid).
+                </span>
               </div>
 
               <div>

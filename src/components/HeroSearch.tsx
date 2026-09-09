@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, ShieldCheck, ChevronDown } from "lucide-react";
+import SearchAutocompleteDropdown, { useAutocomplete } from "./SearchAutocompleteDropdown";
 
 export interface LocationOption {
   id: number;
@@ -78,8 +79,23 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
   const [keyword, setKeyword] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
 
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const { suggestions, isLoading, isOpen, setIsOpen } = useAutocomplete(keyword);
+
+  // Close autocomplete dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [setIsOpen]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsOpen(false);
     const params = new URLSearchParams();
     if (keyword.trim()) {
       params.set("q", keyword.trim());
@@ -91,7 +107,14 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
   };
 
   const handleQuickFilter = (filterText: string) => {
+    setIsOpen(false);
     router.push(`/search?q=${encodeURIComponent(filterText)}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setIsOpen(false);
+    }
   };
 
   // Build hero cards directly from DB featured businesses (limit 4)
@@ -144,49 +167,67 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
           </p>
 
           {/* 4. Search bar */}
-          <form
-            onSubmit={handleSearch}
-            className="bg-white p-2.5 sm:p-2 rounded-2xl sm:rounded-full shadow-lg shadow-slate-200/60 border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-2xl"
-          >
-            {/* Input 1: Search keyword */}
-            <div className="relative flex-1 flex items-center min-w-0">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none shrink-0" />
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Search businesses, services or categories..."
-                className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-transparent text-slate-900 placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
-              />
-            </div>
-
-            {/* Input 2: Location Dropdown */}
-            <div className="relative flex items-center border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-2 shrink-0 sm:w-44 lg:w-48">
-              <MapPin className="w-4 h-4 text-[#1A8A2E] absolute left-3.5 sm:left-5 pointer-events-none shrink-0" />
-              <select
-                value={selectedLocation}
-                onChange={(e) => setSelectedLocation(e.target.value)}
-                className="w-full pl-9 sm:pl-11 pr-8 py-2.5 sm:py-3.5 bg-transparent text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none appearance-none cursor-pointer"
-              >
-                <option value="">All Locations</option>
-                {locations.map((loc) => (
-                  <option key={loc.id} value={loc.slug}>
-                    {loc.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 pointer-events-none" />
-            </div>
-
-            {/* Search Button */}
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-7 py-3 sm:py-3.5 bg-[#1A8A2E] hover:bg-[#147024] active:scale-[0.99] text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-full transition-all shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          <div ref={searchContainerRef} className="relative max-w-2xl">
+            <form
+              onSubmit={handleSearch}
+              className="bg-white p-2.5 sm:p-2 rounded-2xl sm:rounded-full shadow-lg shadow-slate-200/60 border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
             >
-              <Search className="w-4 h-4 stroke-[2.5]" />
-              <span>Search</span>
-            </button>
-          </form>
+              {/* Input 1: Search keyword */}
+              <div className="relative flex-1 flex items-center min-w-0">
+                <Search className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none shrink-0" />
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => {
+                    setKeyword(e.target.value);
+                    setIsOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (keyword.trim().length >= 2) setIsOpen(true);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search businesses, services or categories..."
+                  className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-transparent text-slate-900 placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none"
+                />
+              </div>
+
+              {/* Input 2: Location Dropdown */}
+              <div className="relative flex items-center border-t sm:border-t-0 sm:border-l border-slate-200 pt-2 sm:pt-0 sm:pl-2 shrink-0 sm:w-44 lg:w-48">
+                <MapPin className="w-4 h-4 text-[#1A8A2E] absolute left-3.5 sm:left-5 pointer-events-none shrink-0" />
+                <select
+                  value={selectedLocation}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  className="w-full pl-9 sm:pl-11 pr-8 py-2.5 sm:py-3.5 bg-transparent text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none appearance-none cursor-pointer"
+                >
+                  <option value="">All Locations</option>
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.slug}>
+                      {loc.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 pointer-events-none" />
+              </div>
+
+              {/* Search Button */}
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-7 py-3 sm:py-3.5 bg-[#1A8A2E] hover:bg-[#147024] active:scale-[0.99] text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-full transition-all shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Search className="w-4 h-4 stroke-[2.5]" />
+                <span>Search</span>
+              </button>
+            </form>
+
+            {/* Live Autocomplete Dropdown */}
+            <SearchAutocompleteDropdown
+              query={keyword}
+              suggestions={suggestions}
+              isLoading={isLoading}
+              isOpen={isOpen}
+              onClose={() => setIsOpen(false)}
+            />
+          </div>
 
           {/* 5. Quick Filters */}
           <div className="flex items-center gap-2 flex-wrap pt-1 text-xs text-[#4B5563]">

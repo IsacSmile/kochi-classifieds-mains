@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -17,6 +17,7 @@ import {
   X,
   FolderTree,
 } from "lucide-react";
+import SearchAutocompleteDropdown, { useAutocomplete } from "./SearchAutocompleteDropdown";
 
 export default function Header() {
   const router = useRouter();
@@ -27,12 +28,32 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+  const headerSearchRef = useRef<HTMLDivElement>(null);
+  const { suggestions, isLoading, isOpen, setIsOpen } = useAutocomplete(headerSearch);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (headerSearchRef.current && !headerSearchRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [setIsOpen]);
+
   const handleHeaderSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsOpen(false);
     if (headerSearch.trim()) {
       router.push(`/search?q=${encodeURIComponent(headerSearch.trim())}`);
     } else {
       router.push("/search");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setIsOpen(false);
     }
   };
 
@@ -49,19 +70,36 @@ export default function Header() {
         </Link>
 
         {/* Compact Quick Search Bar (Hidden on Mobile) */}
-        <form
-          onSubmit={handleHeaderSearch}
-          className="hidden md:flex items-center flex-1 max-w-sm relative"
-        >
-          <input
-            type="text"
-            value={headerSearch}
-            onChange={(e) => setHeaderSearch(e.target.value)}
-            placeholder="Search businesses in Kochi..."
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green focus:bg-white transition-all"
+        <div ref={headerSearchRef} className="hidden md:block flex-1 max-w-sm relative">
+          <form
+            onSubmit={handleHeaderSearch}
+            className="flex items-center relative"
+          >
+            <input
+              type="text"
+              value={headerSearch}
+              onChange={(e) => {
+                setHeaderSearch(e.target.value);
+                setIsOpen(true);
+              }}
+              onFocus={() => {
+                if (headerSearch.trim().length >= 2) setIsOpen(true);
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="Search businesses in Kochi..."
+              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green focus:bg-white transition-all text-slate-900"
+            />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+          </form>
+
+          <SearchAutocompleteDropdown
+            query={headerSearch}
+            suggestions={suggestions}
+            isLoading={isLoading}
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-        </form>
+        </div>
 
         {/* Desktop Navigation Links */}
         <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -21,6 +21,7 @@ import {
   Utensils,
   Wrench,
 } from "lucide-react";
+import SearchAutocompleteDropdown, { useAutocomplete } from "@/components/SearchAutocompleteDropdown";
 
 export interface CategoryFilterItem {
   id: number;
@@ -79,6 +80,19 @@ export default function SearchClient({
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  const sidebarSearchRef = useRef<HTMLDivElement>(null);
+  const { suggestions, isLoading: isAutocompleteLoading, isOpen, setIsOpen } = useAutocomplete(keywordInput);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sidebarSearchRef.current && !sidebarSearchRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [setIsOpen]);
 
   // Sync keyword input if searchParams change externally
   useEffect(() => {
@@ -303,19 +317,42 @@ export default function SearchClient({
             </div>
 
             {/* Keyword Search Input */}
-            <form onSubmit={handleKeywordSubmit} className="space-y-2">
+            <div ref={sidebarSearchRef} className="relative space-y-2">
               <label className="text-xs font-bold text-slate-700 block">Keyword Search</label>
-              <div className="relative">
+              <form
+                onSubmit={(e) => {
+                  setIsOpen(false);
+                  handleKeywordSubmit(e);
+                }}
+                className="relative"
+              >
                 <input
                   type="text"
                   value={keywordInput}
-                  onChange={(e) => setKeywordInput(e.target.value)}
+                  onChange={(e) => {
+                    setKeywordInput(e.target.value);
+                    setIsOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (keywordInput.trim().length >= 2) setIsOpen(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setIsOpen(false);
+                  }}
                   placeholder="Search name or service..."
-                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green"
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green text-slate-900"
                 />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-              </div>
-            </form>
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+              </form>
+
+              <SearchAutocompleteDropdown
+                query={keywordInput}
+                suggestions={suggestions}
+                isLoading={isAutocompleteLoading}
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+              />
+            </div>
 
             {/* Checkbox Toggles: Verified & Featured */}
             <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-700">

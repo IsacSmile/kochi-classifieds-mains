@@ -148,31 +148,31 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {categoriesWithCounts.map((cat: any) => {
               return (
                 <Link
                   key={cat.id}
                   href={`/search?category=${cat.slug}`}
-                  className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-brand-green hover:shadow-lg transition-all flex flex-col justify-between space-y-4"
+                  className="group bg-white p-3.5 sm:p-6 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-brand-green hover:shadow-lg transition-all flex flex-col justify-between space-y-3 sm:space-y-4"
                 >
                   {/* Top Row: Icon + Count Pill */}
-                  <div className="flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-brand-green-light group-hover:text-brand-green transition-all shadow-2xs">
-                      <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-6 h-6" />
+                  <div className="flex items-start justify-between gap-1.5">
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center group-hover:scale-105 group-hover:bg-brand-green-light group-hover:text-brand-green transition-all shadow-2xs shrink-0">
+                      <CategoryIcon iconName={cat.iconUrl} categoryName={cat.name} className="w-4 h-4 sm:w-6 sm:h-6" />
                     </div>
 
-                    <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-500 font-medium text-[11px] whitespace-nowrap">
+                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-slate-100 text-slate-500 font-medium text-[10px] sm:text-[11px] whitespace-nowrap shrink-0">
                       {cat.businessCount} {cat.businessCount === 1 ? "business" : "businesses"}
                     </span>
                   </div>
 
                   {/* Bottom Text Block */}
                   <div className="space-y-1 text-left">
-                    <h3 className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-brand-green transition-colors line-clamp-1">
+                    <h3 className="font-extrabold text-slate-900 text-sm sm:text-lg group-hover:text-brand-green transition-colors line-clamp-1">
                       {cat.name}
                     </h3>
-                    <div className="inline-flex items-center gap-1 text-xs font-bold text-[#1A8A2E] group-hover:translate-x-1 transition-transform">
+                    <div className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold text-[#1A8A2E] group-hover:translate-x-1 transition-transform">
                       <span>Explore listings</span>
                       <span>→</span>
                     </div>

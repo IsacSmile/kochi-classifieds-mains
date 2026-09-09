@@ -74,7 +74,7 @@ export default function RegisterPage() {
       } else {
         const session = await getSession();
         showLoginSuccessToast(session?.user?.name || formData.name);
-        router.push("/dashboard");
+        router.push("/");
         router.refresh();
       }
     } catch (err: any) {

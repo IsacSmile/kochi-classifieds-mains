@@ -28,6 +28,7 @@ import {
   Mail,
   MessageSquare,
   Home,
+  ArrowLeft,
 } from "lucide-react";
 
 interface Category {
@@ -131,6 +132,22 @@ export default function AddBusinessPage() {
 
   // Validation Error state for current step
   const [stepError, setStepError] = useState<string | null>(null);
+
+  // User existing business count for Back link detection
+  const [userBusinessCount, setUserBusinessCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/my-businesses")
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setUserBusinessCount(data.length);
+          }
+        })
+        .catch(() => setUserBusinessCount(0));
+    }
+  }, [session]);
 
   // Fetch Categories & Locations on mount
   useEffect(() => {
@@ -452,13 +469,31 @@ export default function AddBusinessPage() {
     );
   }
 
+  const hasMyBusinesses = Boolean(
+    session?.user &&
+      (session.user.role === "business_owner" || session.user.role === "admin") &&
+      userBusinessCount > 0
+  );
+  const backTarget = hasMyBusinesses ? "/my-businesses" : "/";
+  const backLabel = hasMyBusinesses ? "Back to My Businesses" : "Back to Home";
+
   return (
     <div className="min-h-screen bg-white text-brand-navy p-4 sm:p-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <Link
+                href={backTarget}
+                className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-brand-navy transition-colors font-medium"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+                <span>{backLabel}</span>
+              </Link>
+
+              <span className="text-slate-300 text-xs font-light select-none">|</span>
+
               <span className="px-2.5 py-0.5 rounded bg-brand-green-light text-brand-green font-bold text-[10px] uppercase tracking-wide border border-brand-green/20">
                 Business Directory Portal
               </span>

@@ -158,14 +158,16 @@ export default function Header() {
                         </span>
                       </div>
 
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition-colors font-semibold"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-brand-green" />
-                        Dashboard
-                      </Link>
+                      {(user.role === "business_owner" || user.role === "admin") && (
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 hover:text-brand-navy transition-colors font-semibold"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-brand-green" />
+                          Dashboard
+                        </Link>
+                      )}
 
                       {(user.role === "business_owner" || user.role === "admin") && (
                         <Link
@@ -327,14 +329,16 @@ export default function Header() {
 
             {/* User Menu Links */}
             <div className="space-y-1">
-              <Link
-                href="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-brand-navy text-xs font-bold transition-colors"
-              >
-                <LayoutDashboard className="w-4 h-4 text-brand-green" />
-                <span>Dashboard</span>
-              </Link>
+              {(user.role === "business_owner" || user.role === "admin") && (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-brand-navy text-xs font-bold transition-colors"
+                >
+                  <LayoutDashboard className="w-4 h-4 text-brand-green" />
+                  <span>Dashboard</span>
+                </Link>
+              )}
 
               {(user.role === "business_owner" || user.role === "admin") && (
                 <Link

@@ -273,19 +273,19 @@ export default async function HomePage() {
 
         {/* 6. Business CTA Banner */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-brand-navy via-slate-900 to-brand-navy text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border border-white/10">
-            {/* Background Accent Lines */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-brand-green/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-lg shadow-slate-200/60 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-200/80">
+            {/* Background Accent Soft Glow */}
+            <div className="absolute -top-12 -right-12 w-80 h-80 bg-[#EAF7EC] rounded-full blur-3xl pointer-events-none" />
 
             <div className="space-y-4 max-w-xl text-center md:text-left relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/30">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF7EC] text-[#1A8A2E] font-extrabold text-xs border border-[#1A8A2E]/20">
+                <Sparkles className="w-4 h-4 text-[#1A8A2E]" />
                 <span>Grow Your Local Customer Base</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight text-[#000B4D]">
                 Own a Business in Kochi? Get Discovered Today!
               </h2>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p className="text-[#4B5563] text-xs sm:text-sm leading-relaxed font-medium">
                 List your business on KochiClassifieds to gain visibility, get direct customer calls & WhatsApp leads, and manage your online business profile.
               </p>
             </div>
@@ -293,7 +293,7 @@ export default async function HomePage() {
             <div className="relative z-10 shrink-0">
               <Link
                 href="/add-business"
-                className="px-6 py-4 bg-brand-green hover:bg-brand-green-hover text-white font-extrabold rounded-2xl text-xs sm:text-sm transition-all shadow-xl hover:scale-105 inline-flex items-center gap-2"
+                className="px-6 py-4 bg-[#1A8A2E] hover:bg-[#147024] text-white font-extrabold rounded-2xl text-xs sm:text-sm transition-all shadow-md hover:shadow-lg inline-flex items-center gap-2 cursor-pointer"
               >
                 <PlusCircle className="w-5 h-5" />
                 <span>Add Your Business for Free</span>

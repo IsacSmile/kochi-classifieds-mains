@@ -30,6 +30,7 @@ import {
   Home,
   ArrowLeft,
 } from "lucide-react";
+import Header from "@/components/Header";
 
 interface Category {
   id: number;
@@ -478,8 +479,9 @@ export default function AddBusinessPage() {
   const backLabel = hasMyBusinesses ? "Back to My Businesses" : "Back to Home";
 
   return (
-    <div className="min-h-screen bg-white text-brand-navy p-4 sm:p-8 font-sans">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-slate-50 text-brand-navy font-sans pb-16">
+      <Header />
+      <div className="max-w-4xl mx-auto p-4 sm:p-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div className="space-y-1">

@@ -14,11 +14,11 @@ export interface FooterLocation {
 }
 
 interface FooterProps {
-  categories: FooterCategory[];
-  locations: FooterLocation[];
+  categories?: FooterCategory[];
+  locations?: FooterLocation[];
 }
 
-export default function Footer({ categories, locations }: FooterProps) {
+export default function Footer({ categories = [], locations = [] }: FooterProps) {
   return (
     <footer className="bg-brand-navy text-white pt-16 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">

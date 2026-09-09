@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import SearchAutocompleteDropdown, { useAutocomplete } from "@/components/SearchAutocompleteDropdown";
 import BusinessCard from "@/components/BusinessCard";
+import { BusinessCardSkeleton } from "@/components/Skeletons";
 
 export interface CategoryFilterItem {
   id: number;
@@ -453,10 +454,11 @@ export default function SearchClient({
         {/* Right Business Search Results Section */}
         <main className="lg:col-span-3 space-y-6">
           {isLoading ? (
-            /* Loading State */
-            <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
-              <div className="w-8 h-8 border-3 border-brand-green border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-slate-500 font-medium">Searching directory listings...</p>
+            /* Skeleton Loading Grid (6 skeleton cards) */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <BusinessCardSkeleton key={i} />
+              ))}
             </div>
           ) : businesses.length === 0 ? (
             /* Zero Results State with 3 Suggested Categories */

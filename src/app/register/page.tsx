@@ -95,7 +95,7 @@ export default function RegisterPage() {
             Create a new account
           </h2>
           <p className="text-xs text-slate-500">
-            Register to explore local business listings (default role: <code className="font-bold text-brand-green">user</code>)
+            Register to explore local business listings and list your business
           </p>
         </div>
 

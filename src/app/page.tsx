@@ -99,7 +99,7 @@ export default async function HomePage() {
     include: {
       category: { select: { id: true, name: true, slug: true } },
       location: { select: { id: true, name: true, slug: true } },
-      businessPhotos: { take: 1, orderBy: { sortOrder: "asc" } },
+      businessPhotos: { take: 10, orderBy: { sortOrder: "asc" } },
     },
   });
 

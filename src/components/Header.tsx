@@ -153,9 +153,6 @@ export default function Header() {
                       <div className="px-4 py-2 border-b border-slate-100 space-y-0.5">
                         <p className="font-bold text-brand-navy truncate">{user.name}</p>
                         <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
-                        <span className="inline-block mt-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-bold text-[10px] uppercase border border-brand-green/20">
-                          {user.role}
-                        </span>
                       </div>
 
                       {(user.role === "business_owner" || user.role === "admin") && (
@@ -317,12 +314,7 @@ export default function Header() {
                 {user.name ? user.name.charAt(0).toUpperCase() : "U"}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-bold text-xs text-brand-navy truncate">{user.name}</p>
-                  <span className="px-1.5 py-0.5 rounded bg-brand-green-light text-brand-green font-bold text-[9px] uppercase border border-brand-green/20 shrink-0">
-                    {user.role}
-                  </span>
-                </div>
+                <p className="font-bold text-xs text-brand-navy truncate">{user.name}</p>
                 <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
               </div>
             </div>

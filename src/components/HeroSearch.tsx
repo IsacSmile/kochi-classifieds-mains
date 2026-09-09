@@ -12,7 +12,10 @@ export interface LocationOption {
 }
 
 export interface BusinessPhoto {
+  id?: number;
   imageUrl: string;
+  altText?: string | null;
+  sortOrder?: number;
 }
 
 export interface BusinessProp {
@@ -35,6 +38,7 @@ interface CardData {
   categoryName: string;
   locationName: string;
   imageUrl: string;
+  logoUrl?: string | null;
   slug?: string;
   query?: string;
 }
@@ -126,17 +130,31 @@ export default function HeroSearch({ locations, featuredBusinesses = [] }: HeroS
   };
 
   // Build hero cards directly from DB featured businesses (limit 4)
-  const heroCards: CardData[] = featuredBusinesses.map((biz, idx) => ({
-    id: biz.id,
-    name: biz.name,
-    categoryName: biz.category?.name ? biz.category.name.toUpperCase() : "FEATURED",
-    locationName: biz.location?.name ? `${biz.location.name}, Kochi` : "Kochi",
-    imageUrl:
-      biz.businessPhotos && biz.businessPhotos.length > 0 && biz.businessPhotos[0]?.imageUrl
-        ? biz.businessPhotos[0].imageUrl
-        : DEFAULT_HERO_CARDS[idx % DEFAULT_HERO_CARDS.length].imageUrl,
-    slug: biz.slug,
-  }));
+  const heroCards: CardData[] = featuredBusinesses.map((biz, idx) => {
+    const photos = biz.businessPhotos || [];
+    // Logo photo (sortOrder === 0 or altText containing "logo")
+    const logoPhoto = photos.find(
+      (p) => p.sortOrder === 0 || (p.altText && p.altText.toLowerCase().includes("logo"))
+    );
+    // Real showcase background photo (sortOrder > 0 or altText not containing "logo")
+    const bgPhoto = photos.find(
+      (p) => (p.sortOrder && p.sortOrder > 0) || (p.altText && !p.altText.toLowerCase().includes("logo"))
+    );
+
+    const fallbackImage = DEFAULT_HERO_CARDS[idx % DEFAULT_HERO_CARDS.length].imageUrl;
+    const finalBgUrl = bgPhoto?.imageUrl || fallbackImage;
+    const finalLogoUrl = logoPhoto?.imageUrl || null;
+
+    return {
+      id: biz.id,
+      name: biz.name,
+      categoryName: biz.category?.name ? biz.category.name.toUpperCase() : "FEATURED",
+      locationName: biz.location?.name ? `${biz.location.name}, Kochi` : "Kochi",
+      imageUrl: finalBgUrl,
+      logoUrl: finalLogoUrl,
+      slug: biz.slug,
+    };
+  });
 
   // Format locations list for subheading
   const locationListText =
@@ -369,22 +387,35 @@ function CardItem({
   return (
     <div
       onClick={handleClick}
-      className={`group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${heightClass} border border-slate-100 cursor-pointer`}
+      className={`group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${heightClass} border border-slate-200/80 cursor-pointer bg-slate-900`}
     >
+      {/* High-res showcase background photo */}
       <img
         src={card.imageUrl}
         alt={card.name}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-3.5 sm:p-4 text-white">
-        <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#10B981] mb-0.5 sm:mb-1 drop-shadow-xs">
+
+      {/* Floating crisp logo badge overlay (if business has logo photo) */}
+      {card.logoUrl && (
+        <div className="absolute top-3 left-3 z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/95 backdrop-blur-md p-1 shadow-md border border-white/60 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+          <img
+            src={card.logoUrl}
+            alt={`${card.name} logo`}
+            className="w-full h-full object-contain"
+          />
+        </div>
+      )}
+
+      {/* Natural bottom gradient fade for crisp readability without darkening the hero image */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 via-45% to-transparent flex flex-col justify-end p-3.5 sm:p-4 text-white">
+        <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 mb-0.5 sm:mb-1 drop-shadow-sm">
           {card.categoryName}
         </span>
-        <h3 className="font-extrabold text-white text-xs sm:text-base leading-tight drop-shadow-xs line-clamp-1 group-hover:text-emerald-200 transition-colors">
+        <h3 className="font-extrabold text-white text-xs sm:text-base leading-tight drop-shadow-sm line-clamp-1 group-hover:text-emerald-200 transition-colors">
           {card.name}
         </h3>
-        <p className="text-[10px] sm:text-xs text-slate-200/90 font-medium mt-0.5 drop-shadow-xs line-clamp-1">
+        <p className="text-[10px] sm:text-xs text-slate-200 font-medium mt-0.5 drop-shadow-sm line-clamp-1">
           {card.locationName}
         </p>
       </div>

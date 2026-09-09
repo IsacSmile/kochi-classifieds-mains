@@ -25,6 +25,7 @@ import {
   ImageIcon,
   ShieldCheck,
 } from "lucide-react";
+import Header from "@/components/Header";
 
 export interface BusinessPhoto {
   id: number;
@@ -130,60 +131,11 @@ export default function MyBusinessesPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16">
-      {/* Header Bar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center shrink-0 py-1">
-            <img
-              src="/logo.png"
-              alt="KochiClassifieds.in"
-              className="h-10 w-auto object-contain"
-            />
-          </Link>
-
-          <div className="flex items-center gap-4 text-xs">
-            <Link
-              href="/"
-              className="text-slate-600 hover:text-brand-navy font-semibold transition-colors hidden sm:inline"
-            >
-              Directory Home
-            </Link>
-            <Link
-              href="/my-businesses"
-              className="text-brand-green font-bold transition-colors"
-            >
-              My Businesses
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-slate-600 hover:text-brand-navy font-semibold transition-colors"
-            >
-              Dashboard
-            </Link>
-
-            <span className="text-slate-300">|</span>
-
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-brand-navy hidden md:inline">{user?.name}</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-green-light text-brand-green font-bold text-[10px] uppercase border border-brand-green/20">
-                {user?.role}
-              </span>
-            </div>
-
-            <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center gap-1 font-medium text-slate-500 hover:text-rose-600 transition-colors"
-              title="Sign Out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Site-wide Header */}
+      <Header />
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 pt-8 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-8">
         {/* Top Banner */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
@@ -249,15 +201,15 @@ export default function MyBusinessesPage() {
                   className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:border-slate-300 transition-all flex flex-col md:flex-row"
                 >
                   {/* Photo Thumbnail */}
-                  <div className="md:w-48 h-36 md:h-auto bg-slate-100 shrink-0 relative overflow-hidden flex items-center justify-center">
+                  <div className="md:w-48 h-40 md:h-auto bg-slate-100/90 shrink-0 relative overflow-hidden flex items-center justify-center p-3 border-b md:border-b-0 md:border-r border-slate-100">
                     {coverPhoto ? (
                       <img
                         src={coverPhoto}
                         alt={biz.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain max-h-32 rounded-lg"
                       />
                     ) : (
-                      <div className="w-full h-full bg-brand-green-light text-brand-green flex flex-col items-center justify-center p-4">
+                      <div className="w-full h-full bg-brand-green-light text-brand-green flex flex-col items-center justify-center p-4 rounded-lg">
                         <Building2 className="w-10 h-10 text-brand-green mb-1" />
                         <span className="text-[10px] font-bold text-slate-400">No Photo</span>
                       </div>
@@ -311,7 +263,7 @@ export default function MyBusinessesPage() {
                               {biz.name}
                             </h2>
                           )}
-                          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mt-1">
                             {biz.address || "Kochi, Kerala"}
                           </p>
                         </div>

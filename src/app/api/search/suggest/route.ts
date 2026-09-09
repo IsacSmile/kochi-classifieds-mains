@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       }),
     ]);
 
-    const businessResults = businesses.map((b) => ({
+    const businessResults = businesses.map((b: { id: number; name: string; slug: string; featured: boolean; category?: { name: string } | null; location?: { name: string } | null }) => ({
       type: "business" as const,
       id: b.id,
       name: b.name,
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       featured: b.featured,
     }));
 
-    const categoryResults = categories.map((c) => ({
+    const categoryResults = categories.map((c: { id: number; name: string; slug: string }) => ({
       type: "category" as const,
       id: c.id,
       name: c.name,

@@ -1,24 +1,33 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, signOut, getSession } from "next-auth/react";
+import { signIn, signOut, getSession, useSession } from "next-auth/react";
 import { ShieldCheck, Mail, Lock, AlertCircle, ArrowRight, ShieldAlert } from "lucide-react";
 import { showLoginSuccessToast, showLoginErrorToast } from "@/lib/toast";
+import AuthHeader from "@/components/AuthHeader";
 
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin/categories";
   const urlError = searchParams.get("error");
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    // Automatically purge non-admin sessions if on /admin/login to prevent limbo state
+    if (status === "authenticated" && session?.user?.role !== "admin") {
+      signOut({ redirect: false });
+    }
+  }, [status, session]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     urlError === "AccessDeniedAdminOnly"
-      ? "Access Denied: Only administrator accounts (role: admin) can access /admin routes."
+      ? "Access Denied: Only administrator accounts can access /admin routes."
       : urlError === "AccessDeniedBusinessOnly"
       ? "Access Denied: Only business owners and admins can access this area."
       : urlError
@@ -45,15 +54,15 @@ function AdminLoginForm() {
         setLoading(false);
       } else {
         // Fetch current session to verify role is admin
-        const session = await getSession();
-        if (session?.user?.role !== "admin") {
+        const currentSession = await getSession();
+        if (currentSession?.user?.role !== "admin") {
           await signOut({ redirect: false });
-          const accessDeniedMsg = "Access denied: Only administrator accounts (role=admin) can access the admin portal.";
+          const accessDeniedMsg = "Access Denied: Only administrator accounts can access /admin routes.";
           setError(accessDeniedMsg);
-          showLoginErrorToast("Access denied: Only administrator accounts can access the admin portal.");
+          showLoginErrorToast(accessDeniedMsg);
           setLoading(false);
         } else {
-          showLoginSuccessToast(session?.user?.name);
+          showLoginSuccessToast(currentSession?.user?.name);
           router.push(callbackUrl);
           router.refresh();
         }
@@ -138,35 +147,31 @@ function AdminLoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen bg-white text-brand-navy flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
-        <Link href="/" className="inline-flex items-center justify-center py-1">
-          <img
-            src="/logo.png"
-            alt="KochiClassifieds.in"
-            className="h-12 w-auto object-contain"
-          />
-        </Link>
-        
-        <div className="pt-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-green-light text-brand-green border border-brand-green/20">
-            <ShieldCheck className="w-3.5 h-3.5 text-brand-green" />
-            Admin Portal Access
-          </span>
+    <div className="min-h-screen bg-slate-50 text-brand-navy flex flex-col">
+      <AuthHeader />
+
+      <div className="flex-1 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 mb-6">
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-green-light text-brand-green border border-brand-green/20">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-green" />
+              Admin Portal Access
+            </span>
+          </div>
+
+          <h2 className="text-xl font-bold tracking-tight text-brand-navy">
+            Sign in to Admin Control Panel
+          </h2>
+          <p className="text-xs text-slate-500">
+            Administrator authentication required for categories and locations management
+          </p>
         </div>
 
-        <h2 className="text-xl font-bold tracking-tight text-brand-navy">
-          Sign in to Admin Control Panel
-        </h2>
-        <p className="text-xs text-slate-500">
-          Administrator authentication required for categories and locations management
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading admin login...</div>}>
-          <AdminLoginForm />
-        </Suspense>
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading admin login...</div>}>
+            <AdminLoginForm />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

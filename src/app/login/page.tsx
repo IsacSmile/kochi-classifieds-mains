@@ -6,11 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import { Mail, Lock, AlertCircle, ArrowRight } from "lucide-react";
 import { showLoginSuccessToast, showLoginErrorToast } from "@/lib/toast";
+import AuthHeader from "@/components/AuthHeader";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin/categories";
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const urlError = searchParams.get("error");
 
   const [email, setEmail] = useState("");
@@ -131,27 +132,24 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-white text-brand-navy flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
-        <Link href="/" className="inline-flex items-center justify-center py-1">
-          <img
-            src="/logo.png"
-            alt="KochiClassifieds.in"
-            className="h-12 w-auto object-contain scale-[1.02]"
-          />
-        </Link>
-        <h2 className="text-2xl font-bold tracking-tight text-brand-navy">
-          Sign in to your account
-        </h2>
-        <p className="text-xs text-slate-500">
-          Enter your credentials to access the directory management portal
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50 text-brand-navy flex flex-col">
+      <AuthHeader />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading sign in...</div>}>
-          <LoginForm />
-        </Suspense>
+      <div className="flex-1 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-2 mb-6">
+          <h2 className="text-2xl font-bold tracking-tight text-brand-navy">
+            Sign in to your account
+          </h2>
+          <p className="text-xs text-slate-500">
+            Enter your credentials to access the directory management portal
+          </p>
+        </div>
+
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading sign in...</div>}>
+            <LoginForm />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

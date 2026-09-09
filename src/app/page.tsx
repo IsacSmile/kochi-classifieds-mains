@@ -55,16 +55,22 @@ export default async function HomePage() {
     })
   );
 
-  // Fetch top-level locations
-  const locations = await prisma.location.findMany({
-    where: { parentId: null, status: "active" },
-    orderBy: { sortOrder: "asc" },
-    take: 12,
+  // Fetch Kochi primary location and its sub-localities
+  const kochiLocation = await prisma.location.findFirst({
+    where: { OR: [{ slug: "kochi" }, { name: "Kochi" }], parentId: null, status: "active" },
   });
 
-  // Count approved businesses per location
+  const subLocalities = await prisma.location.findMany({
+    where: {
+      parentId: kochiLocation ? kochiLocation.id : undefined,
+      status: "active",
+    },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  // Count approved businesses per sub-locality
   const locationsWithCounts = await Promise.all(
-    locations.map(async (loc: any) => {
+    subLocalities.map(async (loc: any) => {
       const count = await prisma.business.count({
         where: {
           status: "approved",
@@ -74,6 +80,9 @@ export default async function HomePage() {
       return { ...loc, businessCount: count };
     })
   );
+
+  // Sort sub-localities by businessCount descending, then name ascending
+  locationsWithCounts.sort((a: any, b: any) => b.businessCount - a.businessCount || a.name.localeCompare(b.name));
 
   // Fetch Hero Showcase Featured Businesses (limit 4, ordered by showcaseOrder ASC nulls last, then createdAt DESC)
   const heroFeaturedBusinesses = await prisma.business.findMany({
@@ -114,7 +123,7 @@ export default async function HomePage() {
       <Header />
 
       {/* 2. Hero Section */}
-      <HeroSearch locations={locations} featuredBusinesses={heroFeaturedBusinesses} />
+      <HeroSearch locations={locationsWithCounts} featuredBusinesses={heroFeaturedBusinesses} />
 
       {/* Main Content Area */}
       <main className="flex-1 space-y-16 pb-20">
@@ -294,10 +303,20 @@ export default async function HomePage() {
                 Browse businesses near your neighborhood in Kochi metro area
               </p>
             </div>
+
+            {locationsWithCounts.length > 12 && (
+              <Link
+                href="/search"
+                className="text-xs sm:text-sm font-bold text-brand-blue hover:text-brand-navy flex items-center gap-1 group transition-colors"
+              >
+                <span>View All Locations</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {locationsWithCounts.map((loc: any) => (
+            {locationsWithCounts.slice(0, 12).map((loc: any) => (
               <Link
                 key={loc.id}
                 href={`/search?location=${loc.slug}`}
@@ -352,7 +371,7 @@ export default async function HomePage() {
       </main>
 
       {/* 7. Footer Section */}
-      <Footer categories={categories} locations={locations} />
+      <Footer categories={categories} locations={locationsWithCounts} />
     </div>
   );
 }

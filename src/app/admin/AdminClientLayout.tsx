@@ -49,7 +49,7 @@ export default function AdminClientLayout({
             <img
               src="/logo.png"
               alt="KochiClassifieds.in"
-              className="h-10 w-auto object-contain"
+              className="h-10 w-auto object-contain scale-[1.02] origin-left"
             />
           </Link>
         </div>

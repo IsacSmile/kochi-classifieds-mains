@@ -130,7 +130,7 @@ export default function LoginPage() {
           <img
             src="/logo.png"
             alt="KochiClassifieds.in"
-            className="h-12 w-auto object-contain"
+            className="h-12 w-auto object-contain scale-[1.02]"
           />
         </Link>
         <h2 className="text-2xl font-bold tracking-tight text-brand-navy">

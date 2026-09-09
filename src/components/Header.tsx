@@ -44,7 +44,7 @@ export default function Header() {
           <img
             src="/logo.png"
             alt="KochiClassifieds.in"
-            className="h-10 sm:h-12 w-auto object-contain"
+            className="h-10 sm:h-12 w-auto object-contain scale-[1.02] origin-left"
           />
         </Link>
 

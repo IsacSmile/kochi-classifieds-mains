@@ -24,6 +24,7 @@ import {
   Sparkles,
   ImageIcon,
   ShieldCheck,
+  Pencil,
 } from "lucide-react";
 import Header from "@/components/Header";
 
@@ -66,6 +67,7 @@ export interface UserBusiness {
   verified: boolean;
   featured: boolean;
   createdAt: string;
+  updatedAt?: string;
   category: { id: number; name: string; slug: string };
   location: { id: number; name: string; slug: string };
   businessPhotos: BusinessPhoto[];
@@ -289,10 +291,17 @@ export default function MyBusinessesPage() {
                         </p>
                       </div>
 
-                      {/* Submitted Date */}
-                      <div className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>Submitted {formatDate(biz.createdAt)}</span>
+                      {/* Submitted & Last Updated Date */}
+                      <div className="text-[11px] text-slate-400 font-medium flex items-center gap-2.5 flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          Submitted {formatDate(biz.createdAt)}
+                        </span>
+                        {biz.updatedAt && (
+                          <span className="flex items-center gap-1 text-slate-400">
+                            • Last updated {formatDate(biz.updatedAt)}
+                          </span>
+                        )}
                       </div>
 
                       {/* Rejection Reason Feedback Banner */}
@@ -310,33 +319,31 @@ export default function MyBusinessesPage() {
                     </div>
 
                     {/* Action Buttons Grid */}
-                    <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {biz.status === "approved" ? (
-                        <>
-                          <Link
-                            href={`/business/${biz.slug}`}
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold transition-all text-xs whitespace-nowrap shadow-xs active:scale-[0.99]"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                            <span>View Public Page</span>
-                          </Link>
+                    <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/my-businesses/${biz.id}/edit`}
+                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold transition-all text-xs whitespace-nowrap shadow-2xs active:scale-[0.99]"
+                      >
+                        <Pencil className="w-3.5 h-3.5 shrink-0" />
+                        <span>Edit Listing</span>
+                      </Link>
 
-                          <button
-                            onClick={() => setPreviewBusiness(biz)}
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all text-xs whitespace-nowrap border border-slate-200/80 active:scale-[0.99]"
-                          >
-                            <Eye className="w-3.5 h-3.5 text-brand-blue shrink-0" />
-                            <span>Preview Submission</span>
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setPreviewBusiness(biz)}
-                          className="col-span-full w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all text-xs whitespace-nowrap border border-slate-200/80 active:scale-[0.99]"
+                      <button
+                        onClick={() => setPreviewBusiness(biz)}
+                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all text-xs whitespace-nowrap border border-slate-200/80 active:scale-[0.99]"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-brand-blue shrink-0" />
+                        <span>Preview</span>
+                      </button>
+
+                      {biz.status === "approved" && (
+                        <Link
+                          href={`/business/${biz.slug}`}
+                          className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold transition-all text-xs whitespace-nowrap shadow-2xs active:scale-[0.99]"
                         >
-                          <Eye className="w-3.5 h-3.5 text-brand-blue shrink-0" />
-                          <span>Preview Submission</span>
-                        </button>
+                          <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                          <span>Public Page</span>
+                        </Link>
                       )}
                     </div>
                   </div>
@@ -510,21 +517,25 @@ export default function MyBusinessesPage() {
 
             {/* Modal Footer */}
             <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shrink-0">
-              {previewBusiness.status === "approved" ? (
+              <div className="flex items-center gap-2 flex-wrap">
                 <Link
-                  href={`/business/${previewBusiness.slug}`}
-                  className="w-full sm:w-auto px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center justify-center gap-1.5 text-center"
+                  href={`/my-businesses/${previewBusiness.id}/edit`}
+                  className="w-full sm:w-auto px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold rounded-xl text-xs transition-colors inline-flex items-center justify-center gap-1.5 text-center"
                 >
-                  <ExternalLink className="w-4 h-4" />
-                  View Live Public Page
+                  <Pencil className="w-3.5 h-3.5 text-amber-600" />
+                  Edit Listing
                 </Link>
-              ) : (
-                <div className="text-[11px] text-slate-500 font-medium text-center sm:text-left">
-                  {previewBusiness.status === "pending"
-                    ? "Your listing will become publicly visible once approved by an admin."
-                    : "Listing rejected. Please address feedback before re-submitting."}
-                </div>
-              )}
+
+                {previewBusiness.status === "approved" && (
+                  <Link
+                    href={`/business/${previewBusiness.slug}`}
+                    className="w-full sm:w-auto px-4 py-2 bg-brand-green hover:bg-brand-green-hover text-white font-bold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center justify-center gap-1.5 text-center"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    View Public Page
+                  </Link>
+                )}
+              </div>
 
               <button
                 onClick={() => setPreviewBusiness(null)}

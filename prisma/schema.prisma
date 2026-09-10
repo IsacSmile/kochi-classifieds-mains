@@ -104,6 +104,7 @@ model Business {
   featured        Boolean        @default(false)
   showcaseOrder   Int?           @map("showcase_order")
   createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @default(now()) @updatedAt @map("updated_at")
 
   // Relations
   owner            User              @relation(fields: [ownerId], references: [id], onDelete: Restrict)

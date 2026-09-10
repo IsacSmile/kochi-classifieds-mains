@@ -76,6 +76,7 @@ export interface BusinessProfileData {
   verified: boolean;
   featured: boolean;
   createdAt: Date | string;
+  updatedAt?: Date | string;
   category: { id: number; name: string; slug: string };
   location: { id: number; name: string; slug: string };
   owner: { id: number; name: string; email: string; phone: string | null };
@@ -529,6 +530,13 @@ export default function BusinessProfileClient({
                     <a href={`mailto:${business.email}`} className="text-brand-blue font-semibold hover:underline">
                       {business.email}
                     </a>
+                  </div>
+                )}
+
+                {business.updatedAt && (
+                  <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Last updated {new Date(business.updatedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
                   </div>
                 )}
               </div>

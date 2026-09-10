@@ -15,6 +15,7 @@ import {
   Building2,
   Menu,
   X,
+  Flag,
 } from "lucide-react";
 import { showLogoutToast } from "@/lib/toast";
 
@@ -129,6 +130,19 @@ export default function AdminClientLayout({
           <MapPin className="w-4 h-4" />
           Locations
         </Link>
+
+        <Link
+          href="/admin/reviews/reported"
+          onClick={() => setMobileMenuOpen(false)}
+          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+            pathname?.startsWith("/admin/reviews/reported")
+              ? "bg-brand-green text-white shadow-sm"
+              : "text-slate-600 hover:text-brand-navy hover:bg-white"
+          }`}
+        >
+          <Flag className="w-4 h-4 text-rose-500" />
+          Reported Reviews
+        </Link>
       </nav>
 
       {/* Real User Profile Footer */}
@@ -223,6 +237,8 @@ export default function AdminClientLayout({
                 ? "All Businesses Management"
                 : pathname?.includes("/categories")
                 ? "Categories Management"
+                : pathname?.includes("/reviews/reported")
+                ? "Reported Reviews Moderation"
                 : "Locations Management"}
             </h1>
             <span className="hidden sm:inline text-slate-300">|</span>

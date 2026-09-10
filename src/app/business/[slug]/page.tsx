@@ -73,7 +73,15 @@ export default async function BusinessProfilePage({
         orderBy: { sortOrder: "asc" },
       },
       businessHours: true,
-    },
+      reviews: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: { id: true, name: true },
+          },
+        },
+      },
+    } as any,
   });
 
   if (!business) {
@@ -92,12 +100,14 @@ export default async function BusinessProfilePage({
       category: { select: { id: true, name: true, slug: true } },
       location: { select: { id: true, name: true, slug: true } },
       businessPhotos: { take: 1, orderBy: { sortOrder: "asc" } },
-    },
+      reviews: { select: { rating: true } },
+    } as any,
     orderBy: { createdAt: "desc" },
   });
 
   // Convert Prisma Decimal object to plain string for client serialization
-  const formattedServices = business.businessServices.map((svc) => ({
+  const servicesList = (business as any).businessServices || [];
+  const formattedServices = servicesList.map((svc: any) => ({
     ...svc,
     price: svc.price ? svc.price.toString() : null,
   }));

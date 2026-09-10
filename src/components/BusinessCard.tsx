@@ -16,6 +16,7 @@ export interface BusinessCardProps {
     location?: { name: string; slug?: string } | null;
     businessPhotos?: { imageUrl: string; altText?: string | null }[];
     businessHours?: { day: string; openingTime?: string | null; closingTime?: string | null; closed?: boolean }[];
+    reviews?: { rating: number }[];
   };
 }
 
@@ -94,6 +95,12 @@ export default function BusinessCard({ business }: BusinessCardProps) {
   }, [business.businessHours]);
 
   const photos = business.businessPhotos || [];
+  const reviewsList = business.reviews || [];
+  const reviewsCount = reviewsList.length;
+  const avgRating =
+    reviewsCount > 0
+      ? (reviewsList.reduce((acc: number, r: any) => acc + Number(r.rating), 0) / reviewsCount).toFixed(1)
+      : null;
 
   return (
     <div className="group bg-white rounded-xl sm:rounded-2xl border border-slate-200 hover:border-brand-blue hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between">
@@ -199,6 +206,13 @@ export default function BusinessCard({ business }: BusinessCardProps) {
                   }`}
                 />
                 {openStatus.label}
+              </span>
+            )}
+            {reviewsCount > 0 && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
+                <Star className="w-3 h-3 text-amber-500 fill-amber-500 shrink-0" />
+                <span>{avgRating}</span>
+                <span className="text-amber-700/80 font-semibold">({reviewsCount})</span>
               </span>
             )}
           </div>

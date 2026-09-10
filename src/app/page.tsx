@@ -100,7 +100,8 @@ export default async function HomePage() {
       category: { select: { id: true, name: true, slug: true } },
       location: { select: { id: true, name: true, slug: true } },
       businessPhotos: { take: 10, orderBy: { sortOrder: "asc" } },
-    },
+      reviews: { select: { rating: true } },
+    } as any,
   });
 
   // Fetch Featured Approved Businesses for homepage Featured section (limit 8)
@@ -116,7 +117,8 @@ export default async function HomePage() {
       location: { select: { id: true, name: true, slug: true } },
       businessPhotos: { take: 3, orderBy: { sortOrder: "asc" } },
       businessHours: true,
-    },
+      reviews: { select: { rating: true } },
+    } as any,
   });
 
   return (

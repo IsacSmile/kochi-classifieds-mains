@@ -84,7 +84,8 @@ export default async function CategoryLandingPage({ params }: CategoryPageProps)
       location: { select: { id: true, name: true, slug: true } },
       businessPhotos: { take: 3, orderBy: { sortOrder: "asc" } },
       businessHours: true,
-    },
+      reviews: { select: { rating: true } },
+    } as any,
   });
 
   // Footer data

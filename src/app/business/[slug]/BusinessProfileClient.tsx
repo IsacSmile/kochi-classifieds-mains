@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import {
   Building2,
   FolderTree,
@@ -24,6 +25,10 @@ import {
   ExternalLink,
   ArrowRight,
   Sparkles,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Flag,
 } from "lucide-react";
 import Header from "@/components/Header";
 
@@ -60,6 +65,17 @@ export interface RelatedBusiness {
   featured: boolean;
 }
 
+export interface ReviewData {
+  id: number;
+  rating: number;
+  comment: string | null;
+  createdAt: Date | string;
+  user?: {
+    id: number;
+    name: string;
+  };
+}
+
 export interface BusinessProfileData {
   id: number;
   name: string;
@@ -83,6 +99,7 @@ export interface BusinessProfileData {
   businessPhotos: BusinessPhoto[];
   businessServices: BusinessService[];
   businessHours: BusinessHour[];
+  reviews?: ReviewData[];
 }
 
 interface BusinessProfileClientProps {
@@ -99,6 +116,159 @@ export default function BusinessProfileClient({
 
   // Share Notification state
   const [copied, setCopied] = useState(false);
+
+  // Review List & Submission State
+  const { data: session, status: authStatus } = useSession();
+  const [reviewsList, setReviewsList] = useState<ReviewData[]>(business.reviews || []);
+  const [visibleReviewsCount, setVisibleReviewsCount] = useState<number>(5);
+
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [comment, setComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState<string | null>(null);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [checkingReviewStatus, setCheckingReviewStatus] = useState(true);
+
+  // Review Reporting Modal State
+  const [reportingReview, setReportingReview] = useState<ReviewData | null>(null);
+  const [reportReason, setReportReason] = useState("");
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reportSuccess, setReportSuccess] = useState<string | null>(null);
+  const [reportedReviewIds, setReportedReviewIds] = useState<number[]>([]);
+
+  const handleOpenReportModal = (review: ReviewData) => {
+    setReportingReview(review);
+    setReportReason("");
+    setReportError(null);
+    setReportSuccess(null);
+  };
+
+  const handleCloseReportModal = () => {
+    setReportingReview(null);
+    setReportReason("");
+    setReportError(null);
+    setReportSuccess(null);
+  };
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportingReview) return;
+
+    setIsSubmittingReport(true);
+    setReportError(null);
+    setReportSuccess(null);
+
+    try {
+      const res = await fetch(`/api/reviews/${reportingReview.id}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reportReason }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 409 || (data.error && data.error.toLowerCase().includes("already reported"))) {
+          setReportedReviewIds((prev) => Array.from(new Set([...prev, reportingReview.id])));
+        }
+        throw new Error(data.error || "Failed to submit report.");
+      }
+
+      setReportedReviewIds((prev) => Array.from(new Set([...prev, reportingReview.id])));
+      setReportSuccess("Report submitted successfully. Thank you!");
+      setTimeout(() => {
+        handleCloseReportModal();
+      }, 1800);
+    } catch (err: any) {
+      setReportError(err.message || "Failed to submit report.");
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
+
+  // Sync state if business prop updates
+  useEffect(() => {
+    if (Array.isArray(business.reviews)) {
+      setReviewsList(business.reviews);
+    }
+  }, [business.reviews]);
+
+  // Derived Header Ratings
+  const reviewsCount = reviewsList.length;
+  const avgRating =
+    reviewsCount > 0
+      ? (reviewsList.reduce((acc: number, r: any) => acc + Number(r.rating), 0) / reviewsCount).toFixed(1)
+      : null;
+
+  // Check if current user has already reviewed this business
+  useEffect(() => {
+    if (authStatus === "authenticated" && business.id) {
+      setCheckingReviewStatus(true);
+      fetch(`/api/businesses/${business.id}/reviews`)
+        .then((res) => (res.ok ? res.json() : { userHasReviewed: false }))
+        .then((data) => {
+          if (data.userHasReviewed) {
+            setUserHasReviewed(true);
+          }
+          if (data.reportedReviewIds && Array.isArray(data.reportedReviewIds)) {
+            setReportedReviewIds(data.reportedReviewIds);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setCheckingReviewStatus(false));
+    } else if (authStatus === "unauthenticated") {
+      setCheckingReviewStatus(false);
+    }
+  }, [authStatus, business.id]);
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (rating < 1 || rating > 5) {
+      setReviewError("Please select a rating between 1 and 5 stars.");
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    setReviewError(null);
+    setReviewSuccess(null);
+
+    try {
+      const res = await fetch(`/api/businesses/${business.id}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comment }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to submit review.");
+      }
+
+      setReviewSuccess("Thank you! Your review has been saved successfully.");
+      setUserHasReviewed(true);
+
+      // Dynamically add new review to list for instant UI feedback
+      const newRevRecord: ReviewData = {
+        id: data.reviewId || Date.now(),
+        rating,
+        comment: comment ? comment.trim() : null,
+        createdAt: new Date().toISOString(),
+        user: {
+          id: Number(session?.user?.id || 0),
+          name: session?.user?.name || "Verified Customer",
+        },
+      };
+      setReviewsList([newRevRecord, ...reviewsList]);
+    } catch (err: any) {
+      setReviewError(err.message || "An unexpected error occurred.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   // Determine current day of week (e.g., "Monday", "Tuesday"...)
   const [currentDayName, setCurrentDayName] = useState<string>("");
@@ -274,9 +444,26 @@ export default function BusinessProfileClient({
                   </button>
                 </div>
 
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-brand-navy tracking-tight leading-tight">
-                  {business.name}
-                </h1>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-2xl sm:text-4xl font-extrabold text-brand-navy tracking-tight leading-tight">
+                    {business.name}
+                  </h1>
+
+                  {reviewsCount > 0 ? (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 font-extrabold text-xs sm:text-sm shadow-2xs">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+                      <span>{avgRating} ★</span>
+                      <span className="text-amber-800/80 text-xs font-semibold">
+                        ({reviewsCount} {reviewsCount === 1 ? "review" : "reviews"})
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200 text-xs font-semibold">
+                      <Star className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>No reviews yet</span>
+                    </div>
+                  )}
+                </div>
 
                 {todayHour && (
                   <div className="flex items-center gap-2 text-xs font-semibold">
@@ -455,6 +642,250 @@ export default function BusinessProfileClient({
                 </div>
               </section>
             )}
+
+            {/* Unified Customer Reviews & Submission Section */}
+            <section className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+              <div className="border-b border-slate-100 pb-4 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-brand-navy flex items-center gap-2">
+                      <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                      Customer Reviews & Rating
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Read verified customer feedback and leave your own review.
+                    </p>
+                  </div>
+
+                  {reviewsCount > 0 ? (
+                    <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex items-center gap-3 shrink-0">
+                      <div className="text-2xl font-black text-amber-900 tracking-tight flex items-center gap-1">
+                        <span>{avgRating}</span>
+                        <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
+                      </div>
+                      <div className="text-xs text-amber-800 font-semibold border-l border-amber-200 pl-3">
+                        <div>Overall Rating</div>
+                        <div className="text-[11px] text-amber-700 font-medium">based on {reviewsCount} {reviewsCount === 1 ? "review" : "reviews"}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="px-3 py-1.5 bg-slate-100 rounded-xl text-xs font-semibold text-slate-500 border border-slate-200">
+                      No reviews yet
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Review Submission Form Container */}
+              <div className="p-4 sm:p-5 bg-slate-50/80 border border-slate-200/80 rounded-2xl space-y-4">
+                <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                  Write Your Review
+                </h3>
+
+                {authStatus === "loading" || checkingReviewStatus ? (
+                  <div className="text-xs text-slate-400 py-3 font-medium flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                    <span>Checking review status...</span>
+                  </div>
+                ) : authStatus === "unauthenticated" ? (
+                  /* Unauthenticated User state */
+                  <div className="p-4 bg-white border border-slate-200 rounded-xl text-center space-y-3 shadow-2xs">
+                    <p className="text-xs text-slate-600 font-medium">
+                      Log in to leave a review for <strong>{business.name}</strong>.
+                    </p>
+                    <div>
+                      <Link
+                        href={`/login?callbackUrl=${encodeURIComponent(`/business/${business.slug}`)}`}
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand-navy hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors shadow-2xs"
+                      >
+                        Log in to leave a review
+                      </Link>
+                    </div>
+                  </div>
+                ) : userHasReviewed ? (
+                  /* Already Reviewed state */
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>You've already reviewed this business.</span>
+                  </div>
+                ) : (
+                  /* Review Form */
+                  <form onSubmit={handleReviewSubmit} className="space-y-4 text-xs">
+                    {reviewSuccess && (
+                      <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{reviewSuccess}</span>
+                      </div>
+                    )}
+
+                    {reviewError && (
+                      <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>{reviewError}</span>
+                      </div>
+                    )}
+
+                    {/* 5-Star Rating Selector */}
+                    <div className="space-y-1.5">
+                      <label className="block font-bold text-brand-navy">
+                        Your Rating <span className="text-rose-600">*</span>
+                      </label>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            className="p-1 rounded-lg hover:bg-amber-100/50 transition-colors focus:outline-none cursor-pointer"
+                            title={`${star} star${star > 1 ? "s" : ""}`}
+                          >
+                            <Star
+                              className={`w-7 h-7 transition-colors ${
+                                star <= (hoverRating || rating)
+                                  ? "text-amber-400 fill-amber-400"
+                                  : "text-slate-300"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                        <span className="ml-2 text-xs font-bold text-slate-600">
+                          {hoverRating || rating ? `${hoverRating || rating} / 5 Stars` : "Select rating"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Optional Comment Text Area */}
+                    <div className="space-y-1.5">
+                      <label className="block font-bold text-brand-navy">
+                        Your Review Comment <span className="text-slate-400 font-normal">(Optional)</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Share details of your experience with this business..."
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green text-xs font-medium"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReview || rating === 0}
+                      className="px-6 py-2.5 bg-brand-green hover:bg-brand-green-hover text-white text-xs font-bold rounded-xl transition-all shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                    >
+                      {isSubmittingReview ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Submitting Review...</span>
+                        </>
+                      ) : (
+                        <span>Submit Review</span>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Reviews List */}
+              <div className="space-y-4 pt-2">
+                <h3 className="text-sm font-bold text-brand-navy flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span>Customer Reviews</span>
+                  <span className="text-xs font-semibold text-slate-500">({reviewsCount})</span>
+                </h3>
+
+                {reviewsList.length === 0 ? (
+                  <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 text-slate-500 space-y-1">
+                    <Star className="w-8 h-8 text-slate-300 mx-auto" />
+                    <p className="text-xs font-bold text-slate-700">No reviews yet</p>
+                    <p className="text-[11px] text-slate-400">Be the first customer to share feedback for this business!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {reviewsList.slice(0, visibleReviewsCount).map((rev) => (
+                      <div
+                        key={rev.id}
+                        className="p-4 bg-slate-50/60 border border-slate-200/80 rounded-2xl space-y-2 hover:border-slate-300 transition-colors"
+                      >
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-brand-navy text-white font-extrabold text-xs flex items-center justify-center">
+                              {(rev.user?.name || "V").charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="font-bold text-brand-navy text-xs block">
+                                {rev.user?.name || "Verified Customer"}
+                              </span>
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-3.5 h-3.5 ${
+                                      star <= rev.rating
+                                        ? "text-amber-400 fill-amber-400"
+                                        : "text-slate-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div className="text-[11px] text-slate-400 font-medium">
+                              {new Date(rev.createdAt).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </div>
+                            {session?.user && (session.user as any).id !== rev.user?.id && (
+                              reportedReviewIds.includes(rev.id) ? (
+                                <span className="text-[11px] font-semibold text-slate-400 opacity-65 flex items-center gap-1 cursor-default select-none">
+                                  <Check className="w-3 h-3 text-slate-400" />
+                                  <span>Reported</span>
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenReportModal(rev)}
+                                  className="text-[11px] font-medium text-slate-400 hover:text-rose-600 flex items-center gap-1 transition-colors cursor-pointer"
+                                  title="Report this review"
+                                >
+                                  <Flag className="w-3 h-3" />
+                                  <span>Report</span>
+                                </button>
+                              )
+                            )}
+                          </div>
+                        </div>
+
+                        {rev.comment && (
+                          <p className="text-xs text-slate-700 leading-relaxed font-medium pt-1 pl-1 whitespace-pre-line">
+                            "{rev.comment}"
+                          </p>
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Show More Reviews Pagination Button */}
+                    {reviewsList.length > visibleReviewsCount && (
+                      <div className="pt-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setVisibleReviewsCount((prev) => prev + 5)}
+                          className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all border border-slate-200/80 shadow-2xs cursor-pointer"
+                        >
+                          Show More Reviews ({reviewsList.length - visibleReviewsCount} remaining)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
 
           {/* Right Sidebar (1 Column) */}
@@ -736,6 +1167,89 @@ export default function BusinessProfileClient({
                 <span>• {business.businessPhotos[lightboxIndex].altText}</span>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Report Confirmation Modal */}
+      {reportingReview && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2 text-rose-600">
+                <Flag className="w-5 h-5" />
+                <h3 className="text-base font-bold text-brand-navy">Report Review</h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseReportModal}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600">
+              Report this review by <strong className="text-brand-navy">{reportingReview.user?.name || "Customer"}</strong> to site moderators for review.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 font-medium italic">
+              &ldquo;{reportingReview.comment || `${reportingReview.rating} Star Rating`}&rdquo;
+            </div>
+
+            {reportSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{reportSuccess}</span>
+              </div>
+            )}
+
+            {reportError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{reportError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleReportSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-brand-navy">
+                  Reason for reporting <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  placeholder="Tell us why this review violates community guidelines (spam, offensive, fake, etc.)..."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none font-medium"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCloseReportModal}
+                  disabled={isSubmittingReport}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingReport}
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingReport ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <span>Submit Report</span>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

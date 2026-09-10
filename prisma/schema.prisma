@@ -37,7 +37,9 @@ model User {
   role         UserRole   @default(user)
   status       UserStatus @default(active)
   createdAt    DateTime   @default(now()) @map("created_at")
-  businesses   Business[]
+  businesses    Business[]
+  reviews       Review[]
+  reviewReports ReviewReport[]
 
   @@map("users")
 }
@@ -113,6 +115,7 @@ model Business {
   businessServices BusinessService[]
   businessPhotos   BusinessPhoto[]
   businessHours    BusinessHour[]
+  reviews          Review[]
 
   @@index([categoryId])
   @@index([locationId])
@@ -166,3 +169,42 @@ model BusinessHour {
   @@index([businessId])
   @@map("business_hours")
 }
+
+// 8. Reviews table
+model Review {
+  id         Int      @id @default(autoincrement())
+  businessId Int      @map("business_id")
+  userId     Int      @map("user_id")
+  rating     Int
+  comment    String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  business Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports  ReviewReport[]
+
+  @@unique([businessId, userId])
+  @@index([businessId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+// 9. Review Reports table
+model ReviewReport {
+  id         Int      @id @default(autoincrement())
+  reviewId   Int      @map("review_id")
+  reportedBy Int      @map("reported_by")
+  reason     String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [reportedBy], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, reportedBy])
+  @@index([reviewId])
+  @@index([reportedBy])
+  @@map("review_reports")
+}
+

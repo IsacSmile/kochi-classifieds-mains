@@ -126,7 +126,10 @@ export default function Header() {
           {/* Desktop User Auth Menu / Avatar Dropdown (Hidden on Mobile < lg) */}
           <div className="hidden lg:block">
             {status === "loading" ? (
-              <div className="w-8 h-8 rounded-full bg-slate-100 animate-pulse" />
+              <div className="flex items-center gap-2">
+                <div className="w-16 h-8 rounded-xl bg-slate-100 animate-pulse" />
+                <div className="w-20 h-8 rounded-xl bg-slate-200/80 animate-pulse" />
+              </div>
             ) : user ? (
               /* Logged In User Dropdown */
               <div className="relative">
